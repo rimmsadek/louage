@@ -62,10 +62,10 @@ public class register_utilisateur extends AppCompatActivity {
         ContentValues values = new ContentValues();
 
         // Ajouter les données aux ContentValues
-        values.put(DatabaseHelper.COLUMN_NOM, nom);
-        values.put(DatabaseHelper.COLUMN_PRENOM, prenom);
-        values.put(DatabaseHelper.COLUMN_TELEPHONE, telephone);
-        values.put(DatabaseHelper.COLUMN_EMAIL, email);
+        values.put(DatabaseHelper.COLUMN_NOM_UTILISATEUR , nom);
+        values.put(DatabaseHelper.COLUMN_PRENOM_UTILISATEUR , prenom);
+        values.put(DatabaseHelper.COLUMN_TELEPHONE_UTILISATEUR , telephone);
+        values.put(DatabaseHelper.COLUMN_EMAIL_UTILISATEUR , email);
 
         // Insertion dans la base de données
         long result = db.insert(DatabaseHelper.TABLE_UTILISATEUR, null, values);
