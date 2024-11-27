@@ -1,81 +1,87 @@
 package com.example.louage;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText editTextUsername, editTextPassword;
-    private Button loginButton;
-    private DatabaseHelper dbHelper;
+    private static final String PREFS_NAME = "UserPreferences";
+    private static final String KEY_ROLE = "role";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialisation des vues
-        editTextUsername = findViewById(R.id.username);
-        editTextPassword = findViewById(R.id.password);
-        loginButton = findViewById(R.id.loginButton);
+        // Charger et appliquer le thème précédemment choisi
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String selectedRole = sharedPreferences.getString(KEY_ROLE, "");
 
-        // Initialisation de la base de données
-        dbHelper = new DatabaseHelper(this);
+        if (!selectedRole.isEmpty()) {
+            // Lancer l'activité correspondante en fonction du rôle
+            redirectUserBasedOnRole(selectedRole);
+        }
 
-        // Gestion du clic sur le bouton de connexion
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        // Initialisation des vues à partir de leurs ID
+        View userCard = findViewById(R.id.userCard);
+        View driverCard = findViewById(R.id.driverCard);
+
+        // Définir des événements de clic
+        userCard.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                // Récupérer les valeurs des champs
-                String username = editTextUsername.getText().toString();
-                String password = editTextPassword.getText().toString();
+            public void onClick(View view) {
+                onRoleSelected(view);
+            }
+        });
 
-                // Validation des champs
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Vérification des informations de connexion dans la base de données
-                    boolean isValidUser = checkLogin(username, password);
-                    if (isValidUser) {
-                        Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        // Rediriger vers une autre activité (par exemple Dashboard)
-                        // Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
-                        // startActivity(intent);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Invalid Username or Password", Toast.LENGTH_SHORT).show();
-                    }
-                }
+        driverCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRoleSelected(view);
             }
         });
     }
 
-    // Fonction pour vérifier si l'utilisateur existe dans la base de données
-    private boolean checkLogin(String username, String password) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String[] projection = { DatabaseHelper.COLUMN_UTILISATEUR_ID, DatabaseHelper.COLUMN_NOM, DatabaseHelper.COLUMN_PRENOM };
+    public void onRoleSelected(View view) {
+        String role = "";
 
-        // Effectuer la requête de sélection
-        Cursor cursor = db.query(
-                DatabaseHelper.TABLE_UTILISATEUR,   // Table à interroger
-                projection,                         // Colonnes à retourner
-                DatabaseHelper.COLUMN_EMAIL + "=? AND " + DatabaseHelper.COLUMN_TELEPHONE + "=?",  // Sélection
-                new String[]{username, password},  // Valeurs des paramètres
-                null,                               // Grouper les résultats
-                null,                               // Trier les résultats
-                null                                // Ordre
-        );
+        if (view.getId() == R.id.userCard) {
+            role = "user";
+        } else if (view.getId() == R.id.driverCard) {
+            role = "driver";
+        } else {
+            Toast.makeText(this, "Invalid selection", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Si un utilisateur est trouvé avec ces informations de connexion
-        boolean userExists = cursor.getCount() > 0;
-        cursor.close();
-        return userExists;
+        // Enregistrer le rôle choisi dans SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(KEY_ROLE, role);
+        editor.apply();
+
+        // Lancer l'activité appropriée en fonction du rôle choisi
+        redirectUserBasedOnRole(role);
+    }
+
+
+    private void redirectUserBasedOnRole(String role) {
+        if (role.equals("user")) {
+            // Rediriger vers l'activité utilisateur (par exemple, utilisateur_dashboard)
+            Intent intent = new Intent(MainActivity.this, UserDashboardActivity.class);
+            startActivity(intent);
+        } else if (role.equals("driver")) {
+            // Rediriger vers l'activité chauffeur (par exemple, driver_dashboard)
+            Intent intent = new Intent(MainActivity.this, DriverDashboardActivity.class);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Please select a role", Toast.LENGTH_SHORT).show();
+        }
     }
 }

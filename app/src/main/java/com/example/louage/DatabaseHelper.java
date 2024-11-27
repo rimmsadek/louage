@@ -34,7 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_NOM_CHAUF + " TEXT NOT NULL, " +
                     COLUMN_PRENOM_CHAUF + " TEXT NOT NULL, " +
                     COLUMN_TELEPHONE_CHAUF + " TEXT NOT NULL, " +
-                    COLUMN_EMAIL_CHAUF + " TEXT" +
+                    COLUMN_EMAIL_CHAUF + " TEXT, " +  // Add a comma here
                     COLUMN_MATRICULE_CHAUF + " TEXT" +
                     ");";
 
