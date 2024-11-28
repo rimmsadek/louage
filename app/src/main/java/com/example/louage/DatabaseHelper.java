@@ -2,8 +2,11 @@ package com.example.louage;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -93,6 +96,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+
     //APIs
     public void insertVoiture(String matricule, String from, String to) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -111,6 +115,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             System.out.println("Voyage insérée avec succès");
         }
     }
+
+    //get all matricules
+    public ArrayList<String> getAllMatricules() {
+        ArrayList<String> matricules = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_MATRICULE + " FROM " + TABLE_CHAUFFEURS, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                matricules.add(cursor.getString(0)); // Récupère la matricule
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return matricules;
+    }
+
 
 
 }

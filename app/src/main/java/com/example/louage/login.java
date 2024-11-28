@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class login extends AppCompatActivity {
 
     private EditText editTextEmail, editTextPassword;
+    private TextView signupText;
     private Button loginButton;
     private DatabaseHelper dbHelper;
     private String selectedRole;
@@ -30,6 +32,8 @@ public class login extends AppCompatActivity {
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
         loginButton = findViewById(R.id.loginButton);
+        signupText = findViewById(R.id.signupText);
+
 
         // Initialisation de la base de données
         dbHelper = new DatabaseHelper(this);
@@ -61,6 +65,20 @@ public class login extends AppCompatActivity {
                     } else {
                         Toast.makeText(login.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
                     }
+                }
+            }
+        });
+        // Gestion du clic sur le TextView pour l'inscription
+        signupText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Ouvrir l'activité d'inscription selon le rôle sélectionné
+                if (selectedRole.equals("driver")) {
+                    Intent intent = new Intent(login.this, register_driver.class);
+                    startActivity(intent);
+                } else if (selectedRole.equals("user")) {
+                    Intent intent = new Intent(login.this, register_utilisateur.class);
+                    startActivity(intent);
                 }
             }
         });
@@ -97,4 +115,3 @@ public class login extends AppCompatActivity {
         return loginValid;
     }
 }
-

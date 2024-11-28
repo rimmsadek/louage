@@ -6,12 +6,11 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Champ pour la matricule -->
-    <EditText
-        android:id="@+id/matricule"
+    <!-- Liste déroulante pour le matricule -->
+    <Spinner
+        android:id="@+id/matricule_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Matricule"
         android:layout_marginBottom="16dp" />
 
     <!-- Champ pour la destination de départ -->
