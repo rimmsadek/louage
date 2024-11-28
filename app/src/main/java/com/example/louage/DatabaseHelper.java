@@ -1,5 +1,6 @@
 package com.example.louage;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -29,6 +30,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_EMAIL_UTILISATEUR = "email";
     public static final String COLUMN_MOT_DE_PASSE_UTILISATEUR = "mot_de_passe";
 
+
+    // Table "voitures"
+    public static final String TABLE_VOITURES = "voitures";
+    public static final String COLUMN_MATRICULE = "matricule";
+    public static final String COLUMN_FROM = "from_destination";
+    public static final String COLUMN_TO = "to_destination";
+
+
     // SQL query to create the "chauffeurs" table
     private static final String CREATE_TABLE_CHAUFFEURS =
             "CREATE TABLE " + TABLE_CHAUFFEURS + " (" +
@@ -54,24 +63,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_MOT_DE_PASSE_UTILISATEUR  + " TEXT" +
                     ");";
 
+
+    // SQL query to create the "voitures" table
+    private static final String CREATE_TABLE_VOITURES =
+            "CREATE TABLE " + TABLE_VOITURES + " (" +
+                    COLUMN_MATRICULE + " TEXT PRIMARY KEY, " + // La matricule est unique
+                    COLUMN_FROM + " TEXT NOT NULL, " +
+                    COLUMN_TO + " TEXT NOT NULL" +
+                    ");";
+
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Create the "chauffeurs" and "utilisateurs" tables
+        // Create tables
         db.execSQL(CREATE_TABLE_CHAUFFEURS);
         db.execSQL(CREATE_TABLE_UTILISATEUR);
+        db.execSQL(CREATE_TABLE_VOITURES);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop old tables if they exist and recreate them
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAUFFEURS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_UTILISATEUR);
-        // Recreate the tables
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_VOITURES);
         onCreate(db);
     }
+
+    //APIs
+    public void insertVoiture(String matricule, String from, String to) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_MATRICULE, matricule);
+        values.put(COLUMN_FROM, from);
+        values.put(COLUMN_TO, to);
+
+        long result = db.insert(TABLE_VOITURES, null, values);
+        db.close();
+
+        if (result == -1) {
+            System.out.println("Insertion échouée");
+        } else {
+            System.out.println("Voyage insérée avec succès");
+        }
+    }
+
+
 }
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Champ pour la matricule -->
+    <EditText
+        android:id="@+id/matricule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Matricule"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Champ pour la destination de départ -->
+    <EditText
+        android:id="@+id/from_destination"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="D'où"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Champ pour la destination d'arrivée -->
+    <EditText
+        android:id="@+id/to_destination"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Vers où"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Bouton pour enregistrer -->
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enregistrer"
+        android:layout_gravity="center" />
+
+</LinearLayout>

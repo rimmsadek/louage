@@ -37,11 +37,8 @@
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
             android:layout_margin="10dp"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="10dp"
             android:clickable="true"
             android:focusable="true"
-            android:background="@drawable/card_background"
             android:onClick="onRoleSelected">
 
             <LinearLayout
