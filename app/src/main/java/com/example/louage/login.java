@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class login extends AppCompatActivity {
@@ -35,22 +34,22 @@ public class login extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Récupérer les valeurs des champs
-                String username = editTextUsername.getText().toString();
+                String drivername = editTextUsername.getText().toString();
                 String password = editTextPassword.getText().toString();
 
                 // Validation des champs
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(login.this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
+                if (drivername.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(login.this, "Please enter both drivername and password", Toast.LENGTH_SHORT).show();
                 } else {
                     // Vérification des informations de connexion dans la base de données
-                    boolean isValidUser = checkLogin(username, password);
-                    if (isValidUser) {
+                    boolean isValidDriver = checkLogin(drivername, password);
+                    if (isValidDriver) {
                         Toast.makeText(login.this, "Login Successful", Toast.LENGTH_SHORT).show();
                         // Rediriger vers une autre activité (par exemple Dashboard)
                         // Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
                         // startActivity(intent);
                     } else {
-                        Toast.makeText(login.this, "Invalid Username or Password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(login.this, "Invalid Drivername or Password", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -58,7 +57,7 @@ public class login extends AppCompatActivity {
     }
 
     // Fonction pour vérifier si l'utilisateur existe dans la base de données
-    private boolean checkLogin(String username, String password) {
+    private boolean checkLogin(String drivername, String password) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = { DatabaseHelper.COLUMN_ID_UTILISATEUR, DatabaseHelper.COLUMN_NOM_UTILISATEUR, DatabaseHelper.COLUMN_PRENOM_UTILISATEUR };
 
@@ -67,15 +66,15 @@ public class login extends AppCompatActivity {
                 DatabaseHelper.TABLE_UTILISATEUR,   // Table à interroger
                 projection,                         // Colonnes à retourner
                 DatabaseHelper.COLUMN_EMAIL_UTILISATEUR + "=? AND " + DatabaseHelper.COLUMN_TELEPHONE_UTILISATEUR + "=?",  // Sélection
-                new String[]{username, password},  // Valeurs des paramètres
+                new String[]{drivername, password},  // Valeurs des paramètres
                 null,                               // Grouper les résultats
                 null,                               // Trier les résultats
                 null                                // Ordre
         );
 
         // Si un utilisateur est trouvé avec ces informations de connexion
-        boolean userExists = cursor.getCount() > 0;
+        boolean driverExists = cursor.getCount() > 0;
         cursor.close();
-        return userExists;
+        return driverExists;
     }
 }
