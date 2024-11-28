@@ -34,22 +34,22 @@ public class login extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Récupérer les valeurs des champs
-                String drivername = editTextUsername.getText().toString();
+                String username = editTextUsername.getText().toString();
                 String password = editTextPassword.getText().toString();
 
                 // Validation des champs
-                if (drivername.isEmpty() || password.isEmpty()) {
+                if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(login.this, "Please enter both drivername and password", Toast.LENGTH_SHORT).show();
                 } else {
                     // Vérification des informations de connexion dans la base de données
-                    boolean isValidDriver = checkLogin(drivername, password);
+                    boolean isValidDriver = checkLogin(username, password);
                     if (isValidDriver) {
                         Toast.makeText(login.this, "Login Successful", Toast.LENGTH_SHORT).show();
                         // Rediriger vers une autre activité (par exemple Dashboard)
                         // Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
                         // startActivity(intent);
                     } else {
-                        Toast.makeText(login.this, "Invalid Drivername or Password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(login.this, "Invalid username or Password", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -65,7 +65,7 @@ public class login extends AppCompatActivity {
         Cursor cursor = db.query(
                 DatabaseHelper.TABLE_UTILISATEUR,   // Table à interroger
                 projection,                         // Colonnes à retourner
-                DatabaseHelper.COLUMN_EMAIL_UTILISATEUR + "=? AND " + DatabaseHelper.COLUMN_TELEPHONE_UTILISATEUR + "=?",  // Sélection
+                DatabaseHelper.COLUMN_EMAIL_UTILISATEUR + "=? AND " + DatabaseHelper.COLUMN_MOT_DE_PASSE_UTILISATEUR + "=?",  // Sélection
                 new String[]{drivername, password},  // Valeurs des paramètres
                 null,                               // Grouper les résultats
                 null,                               // Trier les résultats

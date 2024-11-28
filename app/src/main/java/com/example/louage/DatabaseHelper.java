@@ -18,6 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_TELEPHONE_CHAUF = "telephone";
     public static final String COLUMN_EMAIL_CHAUF = "email";
     public static final String COLUMN_MATRICULE_CHAUF = "matricule";
+    public static final String COLUMN_MOT_DE_PASSE_CHAUF = "mot_de_passe";
 
     // Table "utilisateur"
     public static final String TABLE_UTILISATEUR = "utilisateur";
@@ -26,6 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PRENOM_UTILISATEUR = "prenom";
     public static final String COLUMN_TELEPHONE_UTILISATEUR = "telephone";
     public static final String COLUMN_EMAIL_UTILISATEUR = "email";
+    public static final String COLUMN_MOT_DE_PASSE_UTILISATEUR = "mot_de_passe";
 
     // SQL query to create the "chauffeurs" table
     private static final String CREATE_TABLE_CHAUFFEURS =
@@ -33,10 +35,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_CHAUFFEUR_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COLUMN_NOM_CHAUF + " TEXT NOT NULL, " +
                     COLUMN_PRENOM_CHAUF + " TEXT NOT NULL, " +
-                    COLUMN_TELEPHONE_CHAUF + " TEXT NOT NULL, " +
-                    COLUMN_EMAIL_CHAUF + " TEXT, " +  // Add a comma here
-                    COLUMN_MATRICULE_CHAUF + " TEXT" +
+                    COLUMN_TELEPHONE_CHAUF + " INTEGER NOT NULL, " +
+                    COLUMN_EMAIL_CHAUF + " TEXT, " +
+                    COLUMN_MATRICULE_CHAUF + " TEXT, " +
+                    COLUMN_MOT_DE_PASSE_CHAUF + " TEXT" +
                     ");";
+
 
 
     // SQL query to create the "utilisateur" table
@@ -45,8 +49,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_ID_UTILISATEUR + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COLUMN_NOM_UTILISATEUR + " TEXT NOT NULL, " +
                     COLUMN_PRENOM_UTILISATEUR + " TEXT NOT NULL, " +
-                    COLUMN_TELEPHONE_UTILISATEUR + " TEXT NOT NULL, " +
-                    COLUMN_EMAIL_UTILISATEUR  + " TEXT" +
+                    COLUMN_TELEPHONE_UTILISATEUR + " INTEGER NOT NULL, " +
+                    COLUMN_EMAIL_UTILISATEUR  + " TEXT, " +
+                    COLUMN_MOT_DE_PASSE_UTILISATEUR  + " TEXT" +
                     ");";
 
     public DatabaseHelper(Context context) {
