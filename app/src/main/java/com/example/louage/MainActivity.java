@@ -23,11 +23,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String selectedRole = sharedPreferences.getString(KEY_ROLE, "");
 
-        if (!selectedRole.isEmpty()) {
-            // Lancer l'activité correspondante en fonction du rôle
-            redirectUserBasedOnRole(selectedRole);
-        }
-
         // Initialisation des vues à partir de leurs ID
         View userCard = findViewById(R.id.userCard);
         View driverCard = findViewById(R.id.driverCard);
@@ -66,22 +61,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(KEY_ROLE, role);
         editor.apply();
 
-        // Lancer l'activité appropriée en fonction du rôle choisi
-        redirectUserBasedOnRole(role);
-    }
-
-
-    private void redirectUserBasedOnRole(String role) {
-        if (role.equals("user")) {
-            // Rediriger vers l'activité utilisateur (par exemple, utilisateur_dashboard)
-            Intent intent = new Intent(MainActivity.this, UserDashboardActivity.class);
-            startActivity(intent);
-        } else if (role.equals("driver")) {
-            // Rediriger vers l'activité chauffeur (par exemple, driver_dashboard)
-            Intent intent = new Intent(MainActivity.this, DriverDashboardActivity.class);
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "Please select a role", Toast.LENGTH_SHORT).show();
-        }
+        // Lancer l'activité LoginActivity avec le rôle passé en paramètre
+        Intent intent = new Intent(MainActivity.this, login.class); // Corrected class name
+        intent.putExtra(KEY_ROLE, role);  // Passer le rôle à LoginActivity
+        startActivity(intent);
     }
 }
+

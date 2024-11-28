@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class VoituresActivity extends AppCompatActivity {
+public class interface1_chauffeur extends AppCompatActivity {
 
     private DatabaseHelper dbHelper;
 
@@ -32,10 +32,10 @@ public class VoituresActivity extends AppCompatActivity {
                 String to = toInput.getText().toString();
 
                 if (matricule.isEmpty() || from.isEmpty() || to.isEmpty()) {
-                    Toast.makeText(VoituresActivity.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(interface1_chauffeur.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
                 } else {
                     dbHelper.insertVoiture(matricule, from, to);
-                    Toast.makeText(VoituresActivity.this, "Voiture ajoutée avec succès", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(interface1_chauffeur.this, "Voiture ajoutée avec succès", Toast.LENGTH_SHORT).show();
                     matriculeInput.setText("");
                     fromInput.setText("");
                     toInput.setText("");

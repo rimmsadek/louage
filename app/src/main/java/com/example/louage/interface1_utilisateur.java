@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class Interface1_utilisateur extends AppCompatActivity {
+public class interface1_utilisateur extends AppCompatActivity {
 
     // Liste des 24 gouvernorats
     private static final String[] GOVERNORATS = {
@@ -44,9 +44,9 @@ public class Interface1_utilisateur extends AppCompatActivity {
                 String to = toSpinner.getSelectedItem().toString();
 
                 if (from.equals(to)) {
-                    Toast.makeText(Interface1_utilisateur.this, "Veuillez choisir des destinations différentes.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(interface1_utilisateur.this, "Veuillez choisir des destinations différentes.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(Interface1_utilisateur.this, "Trajet : " + from + " → " + to, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(interface1_utilisateur.this, "Trajet : " + from + " → " + to, Toast.LENGTH_SHORT).show();
                 }
             }
         });
