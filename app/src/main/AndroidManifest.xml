@@ -13,29 +13,33 @@
         android:theme="@style/Theme.Louage"
         tools:targetApi="31">
         <activity
-            android:name=".register_driver"
+            android:name=".login_cauffeur"
             android:exported="false" />
+        <!-- Main activity: point d'entrée de l'application -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".interface1_utilisateur"
-            android:exported="false" />
-        <activity
-            android:name=".login"
-            android:exported="false" />
-        <activity
-            android:name=".register_utilisateur"
-            android:exported="false" />
-        <activity
-            android:name=".interface1_chauffeur"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity> <!-- Autres activités -->
+        <activity
+            android:name=".login"
+            android:exported="false" />
+        <activity
+            android:name=".register_driver"
+            android:exported="false" />
+        <activity
+            android:name=".register_utilisateur"
+            android:exported="false" />
+        <activity
+            android:name=".interface1_utilisateur"
+            android:exported="false" />
+        <activity
+            android:name=".interface1_chauffeur"
+            android:exported="false" />
     </application>
 
 </manifest>

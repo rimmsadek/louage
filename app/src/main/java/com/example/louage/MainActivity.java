@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRoleSelected(View view) {
         String role = "";
 
+        // Déterminer le rôle en fonction de la carte sélectionnée
         if (view.getId() == R.id.userCard) {
             role = "user";
         } else if (view.getId() == R.id.driverCard) {
@@ -61,10 +62,17 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(KEY_ROLE, role);
         editor.apply();
 
-        // Lancer l'activité LoginActivity avec le rôle passé en paramètre
-        Intent intent = new Intent(MainActivity.this, login.class); // Corrected class name
-        intent.putExtra(KEY_ROLE, role);  // Passer le rôle à LoginActivity
+        // Lancer l'activité appropriée en fonction du rôle sélectionné
+        Intent intent;
+        if ("user".equals(role)) {
+            intent = new Intent(MainActivity.this, login.class);  // Pour le rôle "user", redirige vers login_cauffeur
+        } else {
+            intent = new Intent(MainActivity.this, login_cauffeur.class);  // Pour le rôle "driver", redirige vers login
+        }
+
+        intent.putExtra(KEY_ROLE, role);  // Passer le rôle à l'activité de connexion
         startActivity(intent);
     }
+
 }
 
