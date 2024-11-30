@@ -1,5 +1,6 @@
 package com.example.louage;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -92,7 +93,15 @@ public class login_cauffeur extends AppCompatActivity {
                         null
                 );
 
-            return cursor != null && cursor.moveToFirst();
+            if (cursor != null && cursor.moveToFirst()) {
+                // Récupérer l'ID du chauffeur
+                @SuppressLint("Range") int chauffeurId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_CHAUFFEUR_ID));
+
+                // Stocker l'ID dans la classe GlobalState
+                GlobalState.getInstance().setChauffeurId(chauffeurId);
+
+                return true; // Login réussi
+            }
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("DB_ERROR", "Error while checking login", e); // Log d'erreur
@@ -101,6 +110,7 @@ public class login_cauffeur extends AppCompatActivity {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
         }
+        return false;
     }
 
 

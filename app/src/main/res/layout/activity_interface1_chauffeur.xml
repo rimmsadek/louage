@@ -1,40 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    tools:context=".interface1_chauffeur">
 
-    <!-- Liste déroulante pour le matricule -->
+    <!-- Spinner pour sélectionner le matricule du chauffeur -->
     <Spinner
         android:id="@+id/matricule_spinner"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginTop="32dp"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Sélectionner le matricule du chauffeur"/>
 
-    <!-- Champ pour la destination de départ -->
-    <EditText
-        android:id="@+id/from_destination"
-        android:layout_width="match_parent"
+    <!-- Spinner pour sélectionner la destination de départ -->
+    <Spinner
+        android:id="@+id/fromSpinner"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="D'où"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginTop="16dp"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/matricule_spinner"
+        android:contentDescription="Sélectionner la destination de départ"/>
 
-    <!-- Champ pour la destination d'arrivée -->
-    <EditText
-        android:id="@+id/to_destination"
-        android:layout_width="match_parent"
+    <!-- Spinner pour sélectionner la destination d'arrivée -->
+    <Spinner
+        android:id="@+id/toSpinner"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Vers où"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginTop="16dp"
+        android:importantForAccessibility="yes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fromSpinner"
+        android:contentDescription="Sélectionner la destination d'arrivée"/>
 
-    <!-- Bouton pour enregistrer -->
+    <!-- Button pour valider l'ajout -->
     <Button
-        android:id="@+id/saveButton"
+        android:id="@+id/submitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enregistrer"
-        android:layout_gravity="center" />
+        android:text="Valider"
+        android:importantForAccessibility="yes"
+        android:contentDescription="Valider les informations"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toSpinner"
+        android:layout_marginTop="32dp"/>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,18 +4,27 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.ArrayList;
-
 public class interface1_chauffeur extends AppCompatActivity {
 
     private DatabaseHelper dbHelper;
-    private Spinner matriculeSpinner;
+    private Spinner fromSpinner, toSpinner;
+
+    // Liste des 24 gouvernorats
+    private static final String[] GOVERNORATS = {
+            "Tunis", "Ariana", "Ben Arous", "Manouba", "Bizerte", "Beja", "Jendouba", "Kef",
+            "Siliana", "Zaghouan", "Nabeul", "Sousse", "Monastir", "Mahdia", "Kairouan",
+            "Kasserine", "Sidi Bouzid", "Gabes", "Mednine", "Tataouine", "Gafsa", "Tozeur",
+            "Kebili", "Sfax"
+    };
+
+    //private static final int CHAUFFEUR_ID = 1; // ID statique du chauffeur (à remplacer dynamiquement si nécessaire)
+
+    int current_CHAUFFEUR_ID = GlobalState.getInstance().getChauffeurId();// Récupérer l'ID du chauffeur depuis GlobalState
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,41 +33,42 @@ public class interface1_chauffeur extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        matriculeSpinner = findViewById(R.id.matricule_spinner);
-        EditText fromInput = findViewById(R.id.from_destination);
-        EditText toInput = findViewById(R.id.to_destination);
-        Button saveButton = findViewById(R.id.saveButton);
+        // Initialisation des Spinners
+        fromSpinner = findViewById(R.id.fromSpinner);
+        toSpinner = findViewById(R.id.toSpinner);
+        Button submitButton = findViewById(R.id.submitButton);
 
-        // Charger les matricules dans le Spinner
-        loadMatricules();
+        // Créer un adaptateur pour les listes déroulantes (destinations)
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, GOVERNORATS);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        // Associer l'adaptateur aux Spinners de destinations
+        fromSpinner.setAdapter(adapter);
+        toSpinner.setAdapter(adapter);
+
+        // Gérer le clic sur le bouton "Valider"
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String matricule = matriculeSpinner.getSelectedItem().toString();
-                String from = fromInput.getText().toString();
-                String to = toInput.getText().toString();
+                // Récupérer la destination de départ et d'arrivée
+                String from = fromSpinner.getSelectedItem().toString();
+                String to = toSpinner.getSelectedItem().toString();
 
-                if (from.isEmpty() || to.isEmpty()) {
-                    Toast.makeText(interface1_chauffeur.this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show();
+                if (from.equals(to)) {
+                    Toast.makeText(interface1_chauffeur.this, "Veuillez choisir des destinations différentes.", Toast.LENGTH_SHORT).show();
                 } else {
-                    dbHelper.insertVoiture(matricule, from, to);
-                    Toast.makeText(interface1_chauffeur.this, "Voiture ajoutée avec succès", Toast.LENGTH_SHORT).show();
-                    fromInput.setText("");
-                    toInput.setText("");
+                    // Obtenir la matricule automatiquement à partir de l'ID du chauffeur
+                    String matricule = dbHelper.getMatriculeFromChauffeurId(current_CHAUFFEUR_ID);
+
+                    if (matricule != null) {
+                        // Insérer les données dans la base de données
+                        dbHelper.insertVoiture(matricule, from, to);
+                        Toast.makeText(interface1_chauffeur.this, "Trajet enregistré : " + from + " → " + to, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(interface1_chauffeur.this, "Erreur : Matricule non trouvée", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
-    }
-
-    private void loadMatricules() {
-        ArrayList<String> matricules = dbHelper.getAllMatricules();
-        if (matricules.isEmpty()) {
-            matricules.add("Aucune matricule disponible");
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, matricules);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        matriculeSpinner.setAdapter(adapter);
     }
 }
