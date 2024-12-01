@@ -72,45 +72,44 @@ public class login_cauffeur extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("Range")
     private boolean checkLogin(String email, String password, String role) {
         SQLiteDatabase db = null;
         Cursor cursor = null;
         String hashedPassword = password;
-
         try {
             db = dbHelper.getReadableDatabase();
 
-                String table = DatabaseHelper.TABLE_CHAUFFEURS;
-                String emailColumn = DatabaseHelper.COLUMN_EMAIL_CHAUF;
-                String passwordColumn = DatabaseHelper.COLUMN_MOT_DE_PASSE_CHAUF;
-                cursor = db.query(
-                        table,
-                        null,
-                        emailColumn + "=? AND " + passwordColumn + "=?",
-                        new String[]{email, hashedPassword},
-                        null,
-                        null,
-                        null
-                );
+            String table = DatabaseHelper.TABLE_CHAUFFEURS;
+            String emailColumn = DatabaseHelper.COLUMN_EMAIL_CHAUF;
+            String passwordColumn = DatabaseHelper.COLUMN_MOT_DE_PASSE_CHAUF;
+            cursor = db.query(
+                    table,
+                    null,
+                    emailColumn + "=? AND " + passwordColumn + "=?",
+                    new String[]{email, hashedPassword},
+                    null,
+                    null,
+                    null
+            );
 
             if (cursor != null && cursor.moveToFirst()) {
 
+                // Récupérer l'index de la colonne ID du chauffeur
+                int chauffeurIdColumnIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_CHAUFFEUR_ID);
+                if (chauffeurIdColumnIndex != -1) {
+                    // Récupérer l'ID du chauffeur
+                    int chauffeurId = cursor.getInt(chauffeurIdColumnIndex);
+                    Log.d("LOGIN_ID", "Chauffeur ID récupéré : " + chauffeurId);
 
+                    // Stocker l'ID dans la classe GlobalState
+                    GlobalState.getInstance().setChauffeurId(chauffeurId);
 
-                // Récupérer l'ID du chauffeur
-                @SuppressLint("Range") int chauffeurId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_CHAUFFEUR_ID));
-                Log.d("LOGIN_ID", "Chauffeur ID récupéré : " + chauffeurId);
-
-
-
-
-                // Stocker l'ID dans la classe GlobalState
-                GlobalState.getInstance().setChauffeurId(chauffeurId);
-
-
-                return true; // Login réussi
+                    return true; // Login réussi
+                } else {
+                    Log.d("LOGIN_ERROR", "La colonne COLUMN_CHAUFFEUR_ID n'existe pas");
+                }
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,5 +127,15 @@ public class login_cauffeur extends AppCompatActivity {
 
 
 
-
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -8,6 +8,7 @@ public class GlobalState {
 
     private GlobalState() {
         // Constructeur privé
+        chauffeurId = 1;
     }
 
     // Récupérer l'instance unique
@@ -29,3 +30,10 @@ public class GlobalState {
         this.chauffeurId = chauffeurId;
     }
 }
+
+
+
+
+
+
+
