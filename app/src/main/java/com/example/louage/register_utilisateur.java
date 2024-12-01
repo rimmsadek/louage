@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class register_utilisateur extends AppCompatActivity {
 
-    private EditText editTextNom, editTextPrenom, editTextTelephone, editTextEmail,editTextPassword;
+    private EditText editTextNom, editTextPrenom, editTextTelephone, editTextEmail, editTextPassword;
     private Button registerButton;
     private DatabaseHelper dbHelper;
 
@@ -53,45 +53,26 @@ public class register_utilisateur extends AppCompatActivity {
                 } else if (!telephone.matches("^\\+?[0-9]{8,15}$")) { // Vérification simple du numéro de téléphone
                     Toast.makeText(register_utilisateur.this, "Invalid phone number", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Enregistrer les données dans la base de données
-                    boolean result = insertUserData(nom, prenom, telephone, email, password);
-                    if (result) {
-                        Toast.makeText(register_utilisateur.this, "User Registered Successfully", Toast.LENGTH_SHORT).show();
-
-                        // Redirection vers la page de connexion après l'enregistrement
-                        Intent intent = new Intent(register_utilisateur.this, login.class);
-                        intent.putExtra("role", "user"); // Passer le rôle pour la connexion
-                        startActivity(intent);
-                        finish(); // Fermer l'activité actuelle
+                    // Vérifier si l'email existe déjà
+                    if (dbHelper.isEmailExists(email)) {
+                        Toast.makeText(register_utilisateur.this, "Email already exists", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(register_utilisateur.this, "Registration Failed", Toast.LENGTH_SHORT).show();
+                        // Appeler la méthode insertUtilisateur() pour enregistrer les données
+                        long result = dbHelper.insertUtilisateur(nom, prenom, telephone, email, password);
+                        if (result != -1) {
+                            Toast.makeText(register_utilisateur.this, "User Registered Successfully", Toast.LENGTH_SHORT).show();
+
+                            // Redirection vers la page de connexion après l'enregistrement
+                            Intent intent = new Intent(register_utilisateur.this, login.class);
+                            intent.putExtra("role", "user"); // Passer le rôle pour la connexion
+                            startActivity(intent);
+                            finish(); // Fermer l'activité actuelle
+                        } else {
+                            Toast.makeText(register_utilisateur.this, "Registration Failed", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
         });
-    }
-
-    // Fonction pour insérer les données dans la base de données
-    private boolean insertUserData(String nom, String prenom, String telephone, String email, String password) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        // Ajouter les données aux ContentValues
-        values.put(DatabaseHelper.COLUMN_NOM_UTILISATEUR, nom);
-        values.put(DatabaseHelper.COLUMN_PRENOM_UTILISATEUR, prenom);
-        values.put(DatabaseHelper.COLUMN_TELEPHONE_UTILISATEUR, telephone);
-        values.put(DatabaseHelper.COLUMN_EMAIL_UTILISATEUR, email);
-        values.put(DatabaseHelper.COLUMN_MOT_DE_PASSE_UTILISATEUR, password);
-
-        // Insertion dans la base de données
-        long result = -1;
-        try {
-            result = db.insert(DatabaseHelper.TABLE_UTILISATEUR, null, values);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(register_utilisateur.this, "Database Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-
-        return result != -1;
     }
 }

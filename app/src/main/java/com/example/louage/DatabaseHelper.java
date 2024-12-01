@@ -5,12 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "louage.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
 
     // Table "chauffeurs"
@@ -38,11 +37,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_FROM = "from_destination";
     public static final String COLUMN_TO = "to_destination";
     public static final String COLUMN_NB_RESERVATION = "nb_reservation";
+    public static final String COLUMN_NB_PLACES_DISPO = "nb_places_disponibles";
 
     // create the "chauffeurs" table
     private static final String CREATE_TABLE_CHAUFFEURS =
             "CREATE TABLE " + TABLE_CHAUFFEURS + " (" +
-                    COLUMN_CHAUFFEUR_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_CHAUFFEUR_ID + " INTEGER PRIMARY KEY NOT NULL, " +
                     COLUMN_NOM_CHAUF + " TEXT NOT NULL, " +
                     COLUMN_PRENOM_CHAUF + " TEXT NOT NULL, " +
                     COLUMN_TELEPHONE_CHAUF + " TEXT NOT NULL, " +
@@ -54,7 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // create the "utilisateur" table
     private static final String CREATE_TABLE_UTILISATEUR =
             "CREATE TABLE " + TABLE_UTILISATEUR + " (" +
-                    COLUMN_ID_UTILISATEUR + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_ID_UTILISATEUR + " INTEGER PRIMARY KEY NOT NULL, " +
                     COLUMN_NOM_UTILISATEUR + " TEXT NOT NULL, " +
                     COLUMN_PRENOM_UTILISATEUR + " TEXT NOT NULL, " +
                     COLUMN_TELEPHONE_UTILISATEUR + " TEXT NOT NULL, " +
@@ -70,6 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_FROM + " TEXT NOT NULL, " +
                     COLUMN_TO + " TEXT NOT NULL, " +
                     COLUMN_NB_RESERVATION + " INTEGER DEFAULT 0, " +
+                    COLUMN_NB_PLACES_DISPO + " INTEGER DEFAULT 0, " + // Nouvelle colonne
                     "FOREIGN KEY(" + COLUMN_CHAUFFEUR_ID + ") REFERENCES " +
                     TABLE_CHAUFFEURS + "(" + COLUMN_CHAUFFEUR_ID + ") ON DELETE CASCADE" +
                     ");";
@@ -106,10 +107,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    // Méthode pour insérer un chauffeur
+    // Insérer un chauffeur avec gestion manuelle de l'ID
     public long insertChauffeur(String nom, String prenom, String telephone, String email, String matricule, String motDePasse) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // Récupérer le dernier ID utilisé
+        Cursor cursor = db.rawQuery("SELECT MAX(" + COLUMN_CHAUFFEUR_ID + ") FROM " + TABLE_CHAUFFEURS, null);
+        int lastId = 0;
+        if (cursor.moveToFirst()) {
+            lastId = cursor.getInt(0);  // Dernier ID utilisé
+        }
+        cursor.close();
+
+        int newId = lastId + 1;  // Incrémenter l'ID pour le nouvel enregistrement
+
+        // Préparer les valeurs à insérer
         ContentValues values = new ContentValues();
+        values.put(COLUMN_CHAUFFEUR_ID, newId);  // Utiliser l'ID incrémenté
         values.put(COLUMN_NOM_CHAUF, nom);
         values.put(COLUMN_PRENOM_CHAUF, prenom);
         values.put(COLUMN_TELEPHONE_CHAUF, telephone);
@@ -117,15 +131,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_MATRICULE_CHAUF, matricule);
         values.put(COLUMN_MOT_DE_PASSE_CHAUF, motDePasse);
 
+        // Insérer le chauffeur dans la table
         long result = db.insert(TABLE_CHAUFFEURS, null, values);
         db.close();
         return result;
     }
 
-    // Méthode pour insérer un utilisateur
+
+
+    // Insert utilisateur avec gestion manuelle de l'ID
     public long insertUtilisateur(String nom, String prenom, String telephone, String email, String motDePasse) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // Récupération de l'ID maximum actuel pour l'incrémenter
+        Cursor cursor = db.rawQuery("SELECT MAX(" + COLUMN_ID_UTILISATEUR + ") FROM " + TABLE_UTILISATEUR, null);
+        int id = 1; // Valeur par défaut
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0) + 1; // Incrémente l'ID max
+        }
+        cursor.close();
+
+        // Insertion avec l'ID manuel
         ContentValues values = new ContentValues();
+        values.put(COLUMN_ID_UTILISATEUR, id);
         values.put(COLUMN_NOM_UTILISATEUR, nom);
         values.put(COLUMN_PRENOM_UTILISATEUR, prenom);
         values.put(COLUMN_TELEPHONE_UTILISATEUR, telephone);
@@ -137,16 +165,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    // Méthode pour insérer un voyage
-    public long insertVoyage(int chauffeurId, String from, String to, int nbReservation) {
+    // Insert voyage avec gestion manuelle de l'ID
+    public long insertVoyage(int chauffeurId, String from, String to, int nbReservation, int i) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // Récupération de l'ID maximum actuel pour l'incrémenter
+        Cursor cursor = db.rawQuery("SELECT MAX(" + COLUMN_VOYAGE_ID + ") FROM " + TABLE_VOYAGE, null);
+        int id = 1; // Valeur par défaut
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0) + 1; // Incrémente l'ID max
+        }
+        cursor.close();
+
+        // Insertion avec l'ID manuel
         ContentValues values = new ContentValues();
+        values.put(COLUMN_VOYAGE_ID, id);
         values.put(COLUMN_CHAUFFEUR_ID, chauffeurId);
         values.put(COLUMN_FROM, from);
         values.put(COLUMN_TO, to);
         values.put(COLUMN_NB_RESERVATION, nbReservation);
-        Log.d("LOGIN_DEBUG", "Chauffeur ID récupéré : " + chauffeurId);
-
 
         long result = db.insert(TABLE_VOYAGE, null, values);
         db.close();

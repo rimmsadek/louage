@@ -2,9 +2,9 @@ package com.example.louage;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -30,10 +30,15 @@ public class interface1_chauffeur extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        // Initialisation des Spinners
+        // Initialisation des composants
         fromSpinner = findViewById(R.id.fromSpinner);
         toSpinner = findViewById(R.id.toSpinner);
+        NumberPicker placesNumberPicker = findViewById(R.id.placesNumberPicker);
         Button submitButton = findViewById(R.id.submitButton);
+
+        // Configurer le NumberPicker pour les places
+        placesNumberPicker.setMinValue(1);
+        placesNumberPicker.setMaxValue(8);
 
         // Créer un adaptateur pour les listes déroulantes (destinations)
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, GOVERNORATS);
@@ -44,31 +49,28 @@ public class interface1_chauffeur extends AppCompatActivity {
         toSpinner.setAdapter(adapter);
 
         // Gérer le clic sur le bouton "Valider"
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Récupérer la destination de départ et d'arrivée
-                String from = fromSpinner.getSelectedItem().toString();
-                String to = toSpinner.getSelectedItem().toString();
+        submitButton.setOnClickListener(v -> {
+            // Récupérer les destinations
+            String from = fromSpinner.getSelectedItem().toString();
+            String to = toSpinner.getSelectedItem().toString();
+            int selectedPlaces = placesNumberPicker.getValue();
 
-                // Récupérer l'ID du chauffeur actuel depuis GlobalState
+            // Vérifier si les destinations sont différentes
+            if (from.equals(to)) {
+                Toast.makeText(interface1_chauffeur.this, "Veuillez choisir des destinations différentes.", Toast.LENGTH_SHORT).show();
+            } else {
+                // Récupérer l'ID du chauffeur
                 int currentChauffeurId = GlobalState.getInstance().getChauffeurId();
                 Log.e("CURRENT_ID", "ID du chauffeur actuel : " + currentChauffeurId);
 
+                // Insérer le voyage dans la base de données
+                long result = dbHelper.insertVoyage(currentChauffeurId, from, to, selectedPlaces, 0);
 
-
-                if (from.equals(to)) {
-                    // Vérification des destinations différentes
-                    Toast.makeText(interface1_chauffeur.this, "Veuillez choisir des destinations différentes.", Toast.LENGTH_SHORT).show();
+                // Vérifier si l'insertion a réussi
+                if (result != -1) {
+                    Toast.makeText(interface1_chauffeur.this, "Voyage enregistré avec succès.", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Insérer le voyage dans la base de données
-                    long result = dbHelper.insertVoyage(currentChauffeurId, from, to, 0);
-
-                    if (result != -1) {
-                        Toast.makeText(interface1_chauffeur.this, "Voyage enregistré avec succès.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(interface1_chauffeur.this, "Erreur lors de l'enregistrement.", Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(interface1_chauffeur.this, "Erreur lors de l'enregistrement.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -13,7 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class register_driver extends AppCompatActivity {
-    private EditText editTextNom, editTextPrenom, editTextMatricule, editTextTelephone, editTextEmail,editTextPassword;
+    private EditText editTextNom, editTextPrenom, editTextMatricule, editTextTelephone, editTextEmail, editTextPassword;
     private Button registerButton;
     private DatabaseHelper dbHelper;
 
@@ -54,9 +54,9 @@ public class register_driver extends AppCompatActivity {
                 } else if (!telephone.matches("^\\+?[0-9]{8,15}$")) { // Format simple pour numéro de téléphone
                     Toast.makeText(register_driver.this, "Invalid phone number", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Enregistrer les données dans la base de données
-                    boolean result = insertDriverData(nom, prenom, matricule, telephone, email,password);
-                    if (result) {
+                    // Enregistrer les données dans la base de données en utilisant la méthode insertChauffeur de DatabaseHelper
+                    long result = dbHelper.insertChauffeur(nom, prenom,telephone, email, matricule, password);
+                    if (result != -1) {
                         Toast.makeText(register_driver.this, "Driver Registered Successfully", Toast.LENGTH_SHORT).show();
                         // Rediriger vers la page de connexion après l'inscription
                         Intent intent = new Intent(register_driver.this, login_cauffeur.class);
@@ -68,26 +68,5 @@ public class register_driver extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    // Fonction pour insérer les données dans la base de données
-    private boolean insertDriverData(String nom, String prenom, String matricule, String telephone, String email, String password) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-
-        // Ajouter les données aux ContentValues
-        values.put(DatabaseHelper.COLUMN_NOM_CHAUF, nom);
-        values.put(DatabaseHelper.COLUMN_PRENOM_CHAUF, prenom);
-        values.put(DatabaseHelper.COLUMN_MATRICULE_CHAUF, matricule);
-        values.put(DatabaseHelper.COLUMN_TELEPHONE_CHAUF, telephone);
-        values.put(DatabaseHelper.COLUMN_EMAIL_CHAUF, email);
-        values.put(DatabaseHelper.COLUMN_MOT_DE_PASSE_CHAUF, password);
-
-
-        // Insertion dans la base de données
-        long result = db.insert(DatabaseHelper.TABLE_CHAUFFEURS, null, values);
-
-        // Si l'insertion échoue (result == -1), retour false
-        return result != -1;
     }
 }
