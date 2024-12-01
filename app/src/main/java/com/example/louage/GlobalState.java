@@ -1,5 +1,7 @@
 package com.example.louage;
 
+import android.util.Log;
+
 public class GlobalState {
     private static GlobalState instance; // Instance unique
     private int chauffeurId; // Variable pour stocker l'ID du chauffeur
@@ -17,7 +19,9 @@ public class GlobalState {
     }
 
     // Getter et Setter pour l'ID du chauffeur
+
     public int getChauffeurId() {
+        Log.d("GlobalState", "ID du chauffeur : " + chauffeurId);  // Ajouter un log ici
         return chauffeurId;
     }
 

@@ -94,14 +94,24 @@ public class login_cauffeur extends AppCompatActivity {
                 );
 
             if (cursor != null && cursor.moveToFirst()) {
+
+
+
                 // Récupérer l'ID du chauffeur
                 @SuppressLint("Range") int chauffeurId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_CHAUFFEUR_ID));
+                Log.d("LOGIN_ID", "Chauffeur ID récupéré : " + chauffeurId);
+
+
+
 
                 // Stocker l'ID dans la classe GlobalState
                 GlobalState.getInstance().setChauffeurId(chauffeurId);
 
+
                 return true; // Login réussi
             }
+
+
         } catch (Exception e) {
             e.printStackTrace();
             Log.e("DB_ERROR", "Error while checking login", e); // Log d'erreur

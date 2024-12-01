@@ -1,6 +1,7 @@
 package com.example.louage;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,10 +22,6 @@ public class interface1_chauffeur extends AppCompatActivity {
             "Kasserine", "Sidi Bouzid", "Gabes", "Mednine", "Tataouine", "Gafsa", "Tozeur",
             "Kebili", "Sfax"
     };
-
-    //private static final int CHAUFFEUR_ID = 1; // ID statique du chauffeur (à remplacer dynamiquement si nécessaire)
-
-    int current_CHAUFFEUR_ID = GlobalState.getInstance().getChauffeurId();// Récupérer l'ID du chauffeur depuis GlobalState
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,18 +51,23 @@ public class interface1_chauffeur extends AppCompatActivity {
                 String from = fromSpinner.getSelectedItem().toString();
                 String to = toSpinner.getSelectedItem().toString();
 
+                // Récupérer l'ID du chauffeur actuel depuis GlobalState
+                int currentChauffeurId = GlobalState.getInstance().getChauffeurId();
+                Log.e("CURRENT_ID", "ID du chauffeur actuel : " + currentChauffeurId);
+
+
+
                 if (from.equals(to)) {
+                    // Vérification des destinations différentes
                     Toast.makeText(interface1_chauffeur.this, "Veuillez choisir des destinations différentes.", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Obtenir la matricule automatiquement à partir de l'ID du chauffeur
-                    String matricule = dbHelper.getMatriculeFromChauffeurId(current_CHAUFFEUR_ID);
+                    // Insérer le voyage dans la base de données
+                    long result = dbHelper.insertVoyage(currentChauffeurId, from, to, 0);
 
-                    if (matricule != null) {
-                        // Insérer les données dans la base de données
-                        dbHelper.insertVoiture(matricule, from, to);
-                        Toast.makeText(interface1_chauffeur.this, "Trajet enregistré : " + from + " → " + to, Toast.LENGTH_SHORT).show();
+                    if (result != -1) {
+                        Toast.makeText(interface1_chauffeur.this, "Voyage enregistré avec succès.", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(interface1_chauffeur.this, "Erreur : Matricule non trouvée", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(interface1_chauffeur.this, "Erreur lors de l'enregistrement.", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
