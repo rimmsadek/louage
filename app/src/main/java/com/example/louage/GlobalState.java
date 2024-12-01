@@ -5,6 +5,7 @@ import android.util.Log;
 public class GlobalState {
     private static GlobalState instance; // Instance unique
     private int chauffeurId; // Variable pour stocker l'ID du chauffeur
+<<<<<<< Updated upstream
     private int utilisateurId; // Variable pour stocker l'ID de l'utilisateur
 
     private GlobalState() {
@@ -13,6 +14,18 @@ public class GlobalState {
         utilisateurId = 1;
     }
 
+=======
+    private int utilisateurId;
+
+
+
+    private GlobalState() {
+        // Constructeur privé
+        chauffeurId = 1;
+        utilisateurId = 1;
+    }
+
+>>>>>>> Stashed changes
     // Récupérer l'instance unique
     public static synchronized GlobalState getInstance() {
         if (instance == null) {
@@ -22,13 +35,22 @@ public class GlobalState {
     }
 
     // Getter et Setter pour l'ID du chauffeur
+<<<<<<< Updated upstream
     public int getChauffeurId() {
         Log.d("GlobalState", "ID du chauffeur : " + chauffeurId);  // Ajouter un log pour vérifier l'ID du chauffeur
+=======
+
+    public int getChauffeurId() {
+        Log.d("GlobalState", "ID du chauffeur : " + chauffeurId);  // Ajouter un log ici
+>>>>>>> Stashed changes
         return chauffeurId;
     }
 
     public void setChauffeurId(int chauffeurId) {
+<<<<<<< Updated upstream
         Log.d("GlobalState", "Changement ID chauffeur : " + chauffeurId); // Log pour vérifier l'ID du chauffeur
+=======
+>>>>>>> Stashed changes
         this.chauffeurId = chauffeurId;
     }
 
@@ -39,7 +61,13 @@ public class GlobalState {
     }
 
     public void setUtilisateurId(int utilisateurId) {
+<<<<<<< Updated upstream
         Log.d("GlobalState", "Changement ID utilisateur : " + utilisateurId); // Log pour vérifier l'ID de l'utilisateur
+=======
+>>>>>>> Stashed changes
         this.utilisateurId = utilisateurId;
     }
 }
+
+
+
