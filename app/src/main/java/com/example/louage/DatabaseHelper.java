@@ -222,7 +222,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-    // Méthode pour obtenir les détails d'un voyage
+    // Méthode pour obtenir les détails d'un voyageuser
     public Voyage getVoyageDetails(int voyageId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT v." + COLUMN_FROM + ", v." + COLUMN_TO + ", v." + COLUMN_NB_RESERVATION +
