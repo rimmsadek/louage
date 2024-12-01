@@ -16,7 +16,7 @@
             android:name=".register_driver"
             android:exported="false" />
         <activity
-            android:name=".interface1_chauffeur"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".interface1_utilisateur"
@@ -28,7 +28,7 @@
             android:name=".register_utilisateur"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".interface1_chauffeur"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

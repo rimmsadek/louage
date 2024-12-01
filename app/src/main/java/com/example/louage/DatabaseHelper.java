@@ -70,7 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_FROM + " TEXT NOT NULL, " +
                     COLUMN_TO + " TEXT NOT NULL, " +
                     COLUMN_NB_RESERVATION + " INTEGER DEFAULT 0, " +
-                    COLUMN_NB_PLACES_DISPO + " INTEGER DEFAULT 0, " + // Nouvelle colonne
+                    COLUMN_NB_PLACES_DISPO + " INTEGER DEFAULT 8, " + // Nouvelle colonne
                     "FOREIGN KEY(" + COLUMN_CHAUFFEUR_ID + ") REFERENCES " +
                     TABLE_CHAUFFEURS + "(" + COLUMN_CHAUFFEUR_ID + ") ON DELETE CASCADE" +
                     ");";
@@ -166,29 +166,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Insert voyage avec gestion manuelle de l'ID
-    public long insertVoyage(int chauffeurId, String from, String to, int nbReservation, int i) {
+    public long insertVoyage(int chauffeurId, String from, String to, int nbReservation, int nbPlacesDispo) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Récupération de l'ID maximum actuel pour l'incrémenter
         Cursor cursor = db.rawQuery("SELECT MAX(" + COLUMN_VOYAGE_ID + ") FROM " + TABLE_VOYAGE, null);
         int id = 1; // Valeur par défaut
-        if (cursor.moveToFirst()) {
+        if (cursor.moveToFirst() && cursor.getInt(0) != 0) {
             id = cursor.getInt(0) + 1; // Incrémente l'ID max
         }
         cursor.close();
 
-        // Insertion avec l'ID manuel
+        // Préparer les valeurs à insérer
         ContentValues values = new ContentValues();
         values.put(COLUMN_VOYAGE_ID, id);
         values.put(COLUMN_CHAUFFEUR_ID, chauffeurId);
         values.put(COLUMN_FROM, from);
         values.put(COLUMN_TO, to);
         values.put(COLUMN_NB_RESERVATION, nbReservation);
+        values.put(COLUMN_NB_PLACES_DISPO, nbPlacesDispo); // Ajout de la colonne des places disponibles
 
+        // Insertion dans la table
         long result = db.insert(TABLE_VOYAGE, null, values);
         db.close();
         return result;
     }
+
 
 
 }

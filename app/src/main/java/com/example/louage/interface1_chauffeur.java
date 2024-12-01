@@ -64,7 +64,7 @@ public class interface1_chauffeur extends AppCompatActivity {
                 Log.e("CURRENT_ID", "ID du chauffeur actuel : " + currentChauffeurId);
 
                 // Insérer le voyage dans la base de données
-                long result = dbHelper.insertVoyage(currentChauffeurId, from, to, selectedPlaces, 0);
+                long result = dbHelper.insertVoyage(currentChauffeurId, from, to,0, selectedPlaces);
 
                 // Vérifier si l'insertion a réussi
                 if (result != -1) {
