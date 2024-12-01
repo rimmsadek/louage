@@ -1,152 +1,101 @@
 package com.example.louage;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
+
+
 
 public class login extends AppCompatActivity {
 
+    public static final String KEY_ROLE = "role";
     private EditText editTextEmail, editTextPassword;
     private TextView signupText;
     private Button loginButton;
     private DatabaseHelper dbHelper;
     private String selectedRole;
-    private int currentUserId; // ID de l'utilisateur connecté
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Récupérer le rôle passé depuis MainActivity
-        selectedRole = getIntent().getStringExtra("role");
-
         // Initialisation des vues
+        signupText = findViewById(R.id.signupText);
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
         loginButton = findViewById(R.id.loginButton);
-        signupText = findViewById(R.id.signupText);
-
-
-        // Initialisation de la base de données
         dbHelper = new DatabaseHelper(this);
 
-        // Gestion du clic sur le bouton de connexion
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Récupérer les valeurs des champs
-                String email = editTextEmail.getText().toString();
-                String password = editTextPassword.getText().toString();
+        // Récupérer le rôle passé dans l'Intent
+        selectedRole = getIntent().getStringExtra(KEY_ROLE);
 
-                // Validation des champs
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(login.this, "Please enter both email and password", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Vérification des informations de connexion dans la base de données selon le rôle
-                    boolean isValidLogin = checkLogin(email, password, selectedRole);
-                    if (isValidLogin) {
-                        Toast.makeText(login.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        // Rediriger vers le Dashboard correspondant
-                        if (selectedRole.equals("driver")) {
-                            Intent intent = new Intent(login.this, interface1_chauffeur.class);
-                            startActivity(intent);
-                        } else if (selectedRole.equals("user")) {
-                            Intent intent = new Intent(login.this, interface1_utilisateur.class);
-                            startActivity(intent);
-                        }
-                    } else {
-                        Toast.makeText(login.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
-                    }
-                }
+        // Gestion du clic pour login
+        loginButton.setOnClickListener(v -> {
+            String email = editTextEmail.getText().toString().trim();
+            String password = editTextPassword.getText().toString().trim();
+
+            // Validation des champs
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(login.this, "Enter email and password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(login.this, "Invalid email format", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Vérification des informations de connexion
+            if (checkLogin(email, password, selectedRole)) {
+                Toast.makeText(login.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(login.this, interface1_utilisateur.class) ;
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(login.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
             }
         });
 
-
-        // Gestion du clic sur le TextView pour l'inscription
-        signupText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Ouvrir l'activité d'inscription selon le rôle sélectionné
-                if (selectedRole.equals("driver")) {
-                    Intent intent = new Intent(login.this, register_driver.class);
-                    startActivity(intent);
-                } else if (selectedRole.equals("user")) {
-                    Intent intent = new Intent(login.this, register_utilisateur.class);
-                    startActivity(intent);
-                }
-            }
+        // Gestion du clic pour signup
+        signupText.setOnClickListener(v -> {
+            Intent intent = new Intent(login.this, register_utilisateur.class) ;
+            startActivity(intent);
         });
     }
 
-    // Fonction pour vérifier les informations de connexion
-//    private boolean checkLogin(String email, String password, String role) {
-//        SQLiteDatabase db = dbHelper.getReadableDatabase();
-//        Cursor cursor = null;
-//
-//        if (role.equals("driver")) {
-//            // Vérifier dans la table chauffeur
-//            cursor = db.query(
-//                    DatabaseHelper.TABLE_CHAUFFEURS,  // Table à interroger
-//                    new String[]{DatabaseHelper.COLUMN_CHAUFFEUR_ID, DatabaseHelper.COLUMN_NOM_CHAUF},
-//                    DatabaseHelper.COLUMN_EMAIL_CHAUF + "=? AND " + DatabaseHelper.COLUMN_MOT_DE_PASSE_CHAUF + "=?",
-//                    new String[]{email, password},
-//                    null, null, null);
-//        } else if (role.equals("user")) {
-//            // Vérifier dans la table utilisateur
-//            cursor = db.query(
-//                    DatabaseHelper.TABLE_UTILISATEUR,  // Table à interroger
-//                    new String[]{DatabaseHelper.COLUMN_ID_UTILISATEUR, DatabaseHelper.COLUMN_NOM_UTILISATEUR},
-//                    DatabaseHelper.COLUMN_EMAIL_UTILISATEUR + "=? AND " + DatabaseHelper.COLUMN_MOT_DE_PASSE_UTILISATEUR + "=?",
-//                    new String[]{email, password},
-//                    null, null, null);
-//        }
-//
-//        // Vérification de l'existence du compte dans la table appropriée
-//        boolean loginValid = cursor != null && cursor.getCount() > 0;
-//        if (cursor != null) {
-//            cursor.close();
-//        }
-//        return loginValid;
-//    }
-
-
+    @SuppressLint("Range")
     private boolean checkLogin(String email, String password, String role) {
         SQLiteDatabase db = null;
         Cursor cursor = null;
-        String hashedPassword = password; // Appliquez un hachage ici si nécessaire
+        String hashedPassword = password;  // Appliquez un hachage ici si nécessaire
         try {
             db = dbHelper.getReadableDatabase();
 
-            // Définir les valeurs selon le rôle (utilisateur ou chauffeur)
             String table;
             String emailColumn;
             String passwordColumn;
             String idColumn;
 
+            // Vérification selon le rôle
             if ("driver".equals(role)) {
                 table = DatabaseHelper.TABLE_CHAUFFEURS;
                 emailColumn = DatabaseHelper.COLUMN_EMAIL_CHAUF;
                 passwordColumn = DatabaseHelper.COLUMN_MOT_DE_PASSE_CHAUF;
                 idColumn = DatabaseHelper.COLUMN_CHAUFFEUR_ID;
-            } else if ("user".equals(role)) {
+            } else {
                 table = DatabaseHelper.TABLE_UTILISATEUR;
                 emailColumn = DatabaseHelper.COLUMN_EMAIL_UTILISATEUR;
                 passwordColumn = DatabaseHelper.COLUMN_MOT_DE_PASSE_UTILISATEUR;
                 idColumn = DatabaseHelper.COLUMN_ID_UTILISATEUR;
-            } else {
-                Log.e("LOGIN_ERROR", "Rôle invalide");
-                return false;
             }
 
             // Exécuter la requête pour vérifier les informations
@@ -166,7 +115,7 @@ public class login extends AppCompatActivity {
                 if (userIdColumnIndex != -1) {
                     // Récupérer l'ID de l'utilisateur
                     int userId = cursor.getInt(userIdColumnIndex);
-                    Log.d("LOGIN_ID", "Utilisateur ID récupéré : " + userId);
+                    Log.d("LOGIN_ID", role + " ID récupéré : " + userId);
 
                     // Stocker l'ID dans la classe GlobalState
                     if ("driver".equals(role)) {
@@ -192,9 +141,15 @@ public class login extends AppCompatActivity {
         return false;
     }
 
-
-
-
-
-    //
 }
+
+
+
+
+
+
+
+
+
+
+

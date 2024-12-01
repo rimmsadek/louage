@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -61,10 +60,16 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(KEY_ROLE, role);
         editor.apply();
 
-        // Lancer l'activité LoginActivity avec le rôle passé en paramètre
-        Intent intent = new Intent(MainActivity.this, login.class); // Corrected class name
-        intent.putExtra(KEY_ROLE, role);  // Passer le rôle à LoginActivity
-        startActivity(intent);
+        if (role.equals("user")) {  // Corrected the comparison operator
+            // Lancer l'activité LoginActivity avec le rôle passé en paramètre
+            Intent intent = new Intent(MainActivity.this, login.class); // Corrected class name
+            intent.putExtra(KEY_ROLE, role);  // Passer le rôle à LoginActivity
+            startActivity(intent);
+        } else if (role.equals("driver")) {  // Corrected the syntax for else if
+            // Lancer l'activité LoginActivity avec le rôle passé en paramètre
+            Intent intent = new Intent(MainActivity.this, login_cauffeur.class); // Corrected class name
+            intent.putExtra(KEY_ROLE, role);  // Passer le rôle à LoginActivity
+            startActivity(intent);
+        }
     }
 }
-

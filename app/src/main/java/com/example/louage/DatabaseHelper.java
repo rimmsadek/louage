@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -38,6 +40,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_TO = "to_destination";
     public static final String COLUMN_NB_RESERVATION = "nb_reservation";
     public static final String COLUMN_NB_PLACES_DISPO = "nb_places_disponibles";
+
+    /// Attributs de la table "reservations"
+    public static final String TABLE_RESERVATIONS = "reservation";
+    public static final String COLUMN_RESERVATION_ID = "reservation_id";
+    public static final String COLUMN_VOYAGE_ID_RES = "voyage_id";
+    public static final String COLUMN_UTILISATEUR_ID = "utilisateur_id";
+    public static final String COLUMN_HEURE_RESERVATION = "heure_reservation";
+
 
     // create the "chauffeurs" table
     private static final String CREATE_TABLE_CHAUFFEURS =
@@ -76,16 +86,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     ");";
 
 
-    // Création de la table "reservations"
+
+
+    // Création de la table "reservations" avec les variables
     private static final String CREATE_TABLE_RESERVATIONS =
-            "CREATE TABLE reservations (" +
-                    "reservation_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "voyage_id INTEGER NOT NULL, " +
-                    "utilisateur_id INTEGER NOT NULL, " +
-                    "heure_reservation TEXT NOT NULL, " +
-                    "FOREIGN KEY (voyage_id) REFERENCES " + TABLE_VOYAGE + "(" + COLUMN_VOYAGE_ID + ") ON DELETE CASCADE, " +
-                    "FOREIGN KEY (utilisateur_id) REFERENCES " + TABLE_UTILISATEUR + "(" + COLUMN_ID_UTILISATEUR + ") ON DELETE CASCADE" +
+            "CREATE TABLE "+TABLE_RESERVATIONS+"(" +
+                    COLUMN_RESERVATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_VOYAGE_ID_RES + " INTEGER NOT NULL, " +
+                    COLUMN_UTILISATEUR_ID + " INTEGER NOT NULL, " +
+                    COLUMN_HEURE_RESERVATION + " TEXT NOT NULL, " +
+                    "FOREIGN KEY (" + COLUMN_VOYAGE_ID_RES + ") REFERENCES " + TABLE_VOYAGE + "(" + COLUMN_VOYAGE_ID + ") ON DELETE CASCADE, " +
+                    "FOREIGN KEY (" + COLUMN_UTILISATEUR_ID + ") REFERENCES " + TABLE_UTILISATEUR + "(" + COLUMN_ID_UTILISATEUR + ") ON DELETE CASCADE" +
                     ");";
+
 
 
     public DatabaseHelper(Context context) {
@@ -105,7 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAUFFEURS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_UTILISATEUR);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_VOYAGE);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAUFFEURS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESERVATIONS);
         onCreate(db);
     }
 
@@ -225,7 +238,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String from = cursor.getString(0);
             String to = cursor.getString(1);
             int nbReservation = cursor.getInt(2);
-            int ChauffeurId = cursor.getInt(2);
+            int ChauffeurId = cursor.getInt(5);
             String chauffeurNom = cursor.getString(3);
             String chauffeurPrenom = cursor.getString(4);
             voyage = new Voyage(voyageId, from, to, nbReservation, 8 - nbReservation,ChauffeurId, chauffeurNom, chauffeurPrenom);
@@ -294,26 +307,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return prenom;
     }
 
-    public boolean addReservation(int voyageId, int utilisateurId, int nbPlaces) {
+    public boolean addReservation(int voyageId, int utilisateurId, int placesReservees) {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        boolean success = false;
 
-        // Vérifier si les places sont suffisantes
-        int currentNbReservations = getCurrentNbReservations(voyageId);
-        if (currentNbReservations + nbPlaces > 8) {
-            return false; // Échec si le nombre dépasse les places disponibles.
+        try {
+            // 1. Récupérer le nombre de places disponibles et les réservations actuelles
+            String query = "SELECT " + COLUMN_NB_PLACES_DISPO + ", " + COLUMN_NB_RESERVATION +
+                    " FROM " + TABLE_VOYAGE +
+                    " WHERE " + COLUMN_VOYAGE_ID + " = ?";
+            Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(voyageId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                int availablePlaces = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_PLACES_DISPO));
+                int currentReservations = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_RESERVATION));
+                cursor.close();
+
+                // 2. Vérifier si suffisamment de places sont disponibles
+                if (availablePlaces >= placesReservees) {
+                    // Mettre à jour les places disponibles et les réservations
+                    ContentValues values = new ContentValues();
+                    values.put(COLUMN_NB_RESERVATION, currentReservations + placesReservees);
+                    values.put(COLUMN_NB_PLACES_DISPO, availablePlaces - placesReservees);
+                    db.update(TABLE_VOYAGE, values, COLUMN_VOYAGE_ID + " = ?", new String[]{String.valueOf(voyageId)});
+
+                    // 3. Ajouter la réservation dans la table "reservations"
+                    ContentValues reservationValues = new ContentValues();
+                    reservationValues.put("voyage_id", voyageId);
+                    reservationValues.put("utilisateur_id", utilisateurId);
+                    reservationValues.put("heure_reservation", getCurrentTime());  // You can define a method to get the current time
+
+                    db.insert("reservations", null, reservationValues);
+
+                    success = true;
+                    db.setTransactionSuccessful();  // Mark the transaction as successful
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();  // Commit or rollback the transaction
+            db.close();
         }
+        return success;
+    }
 
-        ContentValues values = new ContentValues();
-        values.put("voyage_id", voyageId);
-        values.put("utilisateur_id", utilisateurId);
-        values.put("heure_reservation", System.currentTimeMillis()); // Horodatage.
 
-        // Insérer la réservation
-        long result = db.insert("reservations", null, values);
-        if (result == -1) return false;
-
-        // Mettre à jour le nombre de réservations dans la table 'voyage'
-        return updateNbReservations(voyageId, currentNbReservations + nbPlaces);
+    public String getCurrentTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
+        return sdf.format(new Date());
     }
 
 

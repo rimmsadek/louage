@@ -2,11 +2,11 @@ package com.example.louage;
 
 import android.os.Bundle;
 import android.widget.NumberPicker;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 public class DetailsVoyageActivity extends AppCompatActivity {
 
@@ -18,6 +18,11 @@ public class DetailsVoyageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details_voyage);
 
         dbHelper = new DatabaseHelper(this);
+
+        // Récupérer l'ID de l'utilisateur courant depuis GlobalState
+        int utilisateurId = GlobalState.getInstance().getUtilisateurId();
+
+        // Récupérer l'ID du voyage depuis l'intent
         int voyageId = getIntent().getIntExtra("voyageId", -1);
 
         if (voyageId != -1) {
@@ -33,7 +38,8 @@ public class DetailsVoyageActivity extends AppCompatActivity {
         reserver.setOnClickListener((View v) -> {
             int selectedPlaces = placesNumberPicker.getValue();
 
-            boolean success = dbHelper.addReservation(voyageId, 1, selectedPlaces); // 1 est un utilisateur fictif pour le test.
+            // Utilisation de l'ID de l'utilisateur courant pour la réservation
+            boolean success = dbHelper.addReservation(voyageId, utilisateurId, selectedPlaces);
             if (success) {
                 Toast.makeText(this, "Réservation réussie!", Toast.LENGTH_SHORT).show();
                 finish(); // Retour à l'écran précédent.
@@ -42,6 +48,7 @@ public class DetailsVoyageActivity extends AppCompatActivity {
             }
         });
     }
+
     private void displayVoyageDetails(int voyageId) {
         Voyage voyage = dbHelper.getVoyageDetails(voyageId);
 
@@ -52,5 +59,4 @@ public class DetailsVoyageActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.textViewPlaces)).setText("Places disponibles: " + (8 - voyage.getNbReservation()));
         }
     }
-
 }
