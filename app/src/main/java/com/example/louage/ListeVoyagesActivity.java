@@ -53,20 +53,19 @@ public class ListeVoyagesActivity extends AppCompatActivity {
 
                 if (idIndex != -1 && chauffeurIdIndex != -1 && nbReservationsIndex != -1) {
                     int id = cursor.getInt(idIndex);
-                    int chauffeurId = cursor.getInt(chauffeurIdIndex);
+                    int chauffeurId = cursor.getInt(chauffeurIdIndex);  // Chauffeur ID
                     int nbReservations = cursor.getInt(nbReservationsIndex);
 
-                    // Obtenir les informations du chauffeur
-                    Chauffeur chauffeur = dbHelper.getChauffeurById(chauffeurId);
-                    if (chauffeur != null) {
-                        voyagesList.add("Chauffeur: " + chauffeur.getNom() + " " + chauffeur.getPrenom() +
-                                " | Places disponibles: " + (8 - nbReservations));
-                        voyageIds.add(id);
-                    } else {
-                        showToast("Chauffeur introuvable pour le voyage ID: " + id);
-                    }
+                    // Récupérer les détails du chauffeur
+                    String chauffeurNom = dbHelper.getChauffeurNom(chauffeurId);
+                    String chauffeurPrenom = dbHelper.getChauffeurPrenom(chauffeurId);
+
+                    // Ajouter les détails du voyage à la liste
+                    voyagesList.add("Chauffeur: " + chauffeurNom + " " + chauffeurPrenom +
+                            " | Places disponibles: " + (8 - nbReservations));
+                    voyageIds.add(id);
                 } else {
-                    showToast("Erreur lors de la récupération des données pour le voyage.");
+                    showToast("Erreur lors de la récupération des données.");
                 }
             } while (cursor.moveToNext());
         } else {
@@ -74,7 +73,6 @@ public class ListeVoyagesActivity extends AppCompatActivity {
         }
         if (cursor != null) cursor.close();
     }
-
 
 
     private void showToast(String message) {

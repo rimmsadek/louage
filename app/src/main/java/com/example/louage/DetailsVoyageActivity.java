@@ -25,22 +25,11 @@ public class DetailsVoyageActivity extends AppCompatActivity {
         Voyage voyage = dbHelper.getVoyageDetails(voyageId);
 
         if (voyage != null) {
-            Chauffeur chauffeur = voyage.getChauffeur(); // Récupération de l'objet Chauffeur
-            if (chauffeur != null) {
-                ((TextView) findViewById(R.id.textViewChauffeur))
-                        .setText("Chauffeur: " + chauffeur.getNom() + " " + chauffeur.getPrenom());
-            } else {
-                ((TextView) findViewById(R.id.textViewChauffeur)).setText("Chauffeur inconnu");
-            }
+            ((TextView) findViewById(R.id.textViewChauffeur)).setText("Chauffeur: " + voyage.getChauffeurNom() + " " + voyage.getChauffeurPrenom());
             ((TextView) findViewById(R.id.textViewFrom)).setText("De: " + voyage.getFrom());
             ((TextView) findViewById(R.id.textViewTo)).setText("À: " + voyage.getTo());
-            ((TextView) findViewById(R.id.textViewPlaces))
-                    .setText("Places disponibles: " + (8 - voyage.getNbReservation())); // Utilisation de getNbReservation()
-        } else {
-            // Gérer le cas où le voyage est introuvable
-            ((TextView) findViewById(R.id.textViewChauffeur)).setText("Détails du voyage introuvables.");
+            ((TextView) findViewById(R.id.textViewPlaces)).setText("Places disponibles: " + (8 - voyage.getNbReservation())); // Utilisation de getNbReservation()
         }
     }
-
 
 }
