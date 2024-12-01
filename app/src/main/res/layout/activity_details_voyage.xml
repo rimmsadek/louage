@@ -50,6 +50,7 @@
             android:text="Places disponibles :"
             android:textSize="16sp"
             android:layout_marginTop="8dp" />
+
         <android.widget.NumberPicker
             android:id="@+id/numberPickerPlaces"
             android:layout_width="wrap_content"

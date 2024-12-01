@@ -1,5 +1,5 @@
 package com.example.louage;
-import com.example.louage.R;
+
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -69,7 +69,7 @@ public class interface1_utilisateur extends AppCompatActivity {
         // Trouver les Spinners et le bouton
         Spinner fromSpinner = findViewById(R.id.fromSpinner);
         Spinner toSpinner = findViewById(R.id.toSpinner);
-        Button submitButton = findViewById(R.id.submitButton);
+        Button submitButton = findViewById(R.id.submitButton1);
 
         // Créer un adaptateur pour les listes déroulantes
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, GOVERNORATS);
@@ -90,7 +90,7 @@ public class interface1_utilisateur extends AppCompatActivity {
                 showToast("Veuillez choisir des destinations différentes.");
             } else {
                 // Passer les destinations choisies à l'activité suivante
-                Intent intent = new Intent(this, ListeVoyagesActivity.class);
+                Intent intent = new Intent(interface1_utilisateur.this, ListeVoyagesActivity.class);
                 intent.putExtra("from", from);
                 intent.putExtra("to", to);
                 startActivity(intent);

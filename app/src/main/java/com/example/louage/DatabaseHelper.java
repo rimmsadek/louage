@@ -294,6 +294,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return prenom;
     }
 
+    public boolean addReservation(int voyageId, int utilisateurId, int nbPlaces) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Vérifier si les places sont suffisantes
+        int currentNbReservations = getCurrentNbReservations(voyageId);
+        if (currentNbReservations + nbPlaces > 8) {
+            return false; // Échec si le nombre dépasse les places disponibles.
+        }
+
+        ContentValues values = new ContentValues();
+        values.put("voyage_id", voyageId);
+        values.put("utilisateur_id", utilisateurId);
+        values.put("heure_reservation", System.currentTimeMillis()); // Horodatage.
+
+        // Insérer la réservation
+        long result = db.insert("reservations", null, values);
+        if (result == -1) return false;
+
+        // Mettre à jour le nombre de réservations dans la table 'voyage'
+        return updateNbReservations(voyageId, currentNbReservations + nbPlaces);
+    }
+
+
+    private int getCurrentNbReservations(int voyageId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_NB_RESERVATION + " FROM " + TABLE_VOYAGE +
+                " WHERE " + COLUMN_VOYAGE_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(voyageId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int nbReservations = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_RESERVATION));
+            cursor.close();
+            return nbReservations;
+        }
+        if (cursor != null) cursor.close();
+        return 0;
+    }
+    private boolean updateNbReservations(int voyageId, int newNbReservations) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NB_RESERVATION, newNbReservations);
+
+        int rowsUpdated = db.update(TABLE_VOYAGE, values, COLUMN_VOYAGE_ID + " = ?", new String[]{String.valueOf(voyageId)});
+        return rowsUpdated > 0;
+    }
+
+
+
+
 
 
 }

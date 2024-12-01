@@ -16,6 +16,12 @@
             android:name=".register_driver"
             android:exported="false" />
         <activity
+            android:name=".ListeVoyagesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailsVoyageActivity"
+            android:exported="false" />
+        <activity
             android:name=".interface1_chauffeur"
             android:exported="false" />
         <activity
@@ -23,6 +29,9 @@
             android:exported="false" />
         <activity
             android:name=".login"
+            android:exported="false" />
+        <activity
+            android:name=".login_cauffeur"
             android:exported="false" />
         <activity
             android:name=".register_utilisateur"
