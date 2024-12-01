@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarDetailsVoyage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:title="Détails du voyage" />
+
+        <TextView
+            android:id="@+id/textViewChauffeur"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chauffeur :"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/textViewFrom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="De :"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/textViewTo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="À :"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/textViewPlaces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Places disponibles :"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+        <android.widget.NumberPicker
+            android:id="@+id/numberPickerPlaces"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"/>
+
+
+        <Button
+            android:id="@+id/buttonReserve"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Réserver"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</ScrollView>

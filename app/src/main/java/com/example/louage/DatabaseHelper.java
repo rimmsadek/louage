@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "louage.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
 
     // Table "chauffeurs"
@@ -76,6 +76,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     ");";
 
 
+    // Création de la table "reservations"
+    private static final String CREATE_TABLE_RESERVATIONS =
+            "CREATE TABLE reservations (" +
+                    "reservation_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "voyage_id INTEGER NOT NULL, " +
+                    "utilisateur_id INTEGER NOT NULL, " +
+                    "heure_reservation TEXT NOT NULL, " +
+                    "FOREIGN KEY (voyage_id) REFERENCES " + TABLE_VOYAGE + "(" + COLUMN_VOYAGE_ID + ") ON DELETE CASCADE, " +
+                    "FOREIGN KEY (utilisateur_id) REFERENCES " + TABLE_UTILISATEUR + "(" + COLUMN_ID_UTILISATEUR + ") ON DELETE CASCADE" +
+                    ");";
+
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -85,6 +97,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_CHAUFFEURS);
         db.execSQL(CREATE_TABLE_UTILISATEUR);
         db.execSQL(CREATE_TABLE_VOYAGE);
+        db.execSQL(CREATE_TABLE_RESERVATIONS);
     }
 
     @Override
@@ -92,6 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAUFFEURS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_UTILISATEUR);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_VOYAGE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAUFFEURS);
         onCreate(db);
     }
 
@@ -190,6 +204,94 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert(TABLE_VOYAGE, null, values);
         db.close();
         return result;
+    }
+
+
+
+
+    // Méthode pour obtenir les détails d'un voyage
+    public Voyage getVoyageDetails(int voyageId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT v." + COLUMN_FROM + ", v." + COLUMN_TO + ", v." + COLUMN_NB_RESERVATION +
+                ", c." + COLUMN_NOM_CHAUF + ", c." + COLUMN_PRENOM_CHAUF +
+                " FROM " + TABLE_VOYAGE + " v " +
+                "JOIN " + TABLE_CHAUFFEURS + " c ON v." + COLUMN_CHAUFFEUR_ID + " = c." + COLUMN_CHAUFFEUR_ID +
+                " WHERE v." + COLUMN_VOYAGE_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(voyageId)});
+        Voyage voyage = null;
+
+        if (cursor.moveToFirst()) {
+            String from = cursor.getString(0);
+            String to = cursor.getString(1);
+            int nbReservation = cursor.getInt(2);
+            int ChauffeurId = cursor.getInt(2);
+            String chauffeurNom = cursor.getString(3);
+            String chauffeurPrenom = cursor.getString(4);
+            voyage = new Voyage(voyageId, from, to, nbReservation, 8 - nbReservation,ChauffeurId, chauffeurNom, chauffeurPrenom);
+        }
+
+        cursor.close();
+        db.close();
+        return voyage;
+    }
+    public Cursor getVoyagesByDestination(String from, String to) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " +
+                COLUMN_VOYAGE_ID + ", " +
+                COLUMN_CHAUFFEUR_ID + ", " +
+                COLUMN_NB_RESERVATION +
+                " FROM " + TABLE_VOYAGE +
+                " WHERE " + COLUMN_FROM + " = ?" +
+                " AND " + COLUMN_TO + " = ?" +
+                " AND " + COLUMN_NB_RESERVATION + " < 8";
+        return db.rawQuery(query, new String[]{from, to});
+    }
+
+    // Méthode pour obtenir le nom du chauffeur à partir de son ID
+    public String getChauffeurNom(int chauffeurId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_CHAUFFEURS, new String[]{COLUMN_NOM_CHAUF},
+                COLUMN_CHAUFFEUR_ID + "=?", new String[]{String.valueOf(chauffeurId)}, null, null, null);
+
+        String nom = "Nom inconnu";
+        if (cursor != null) {
+            try {
+                if (cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndexOrThrow(COLUMN_NOM_CHAUF);
+                    nom = cursor.getString(columnIndex);
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();  // Affiche une erreur si la colonne n'est pas trouvée
+            } finally {
+                cursor.close();
+            }
+        }
+        return nom;
+    }
+
+
+    // Méthode pour obtenir le prénom du chauffeur à partir de son ID
+    public String getChauffeurPrenom(int chauffeurId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_CHAUFFEURS, new String[]{COLUMN_PRENOM_CHAUF},
+                COLUMN_CHAUFFEUR_ID + "=?", new String[]{String.valueOf(chauffeurId)}, null, null, null);
+
+        String prenom = "Prénom inconnu";
+        if (cursor != null) {
+            try {
+                if (cursor.moveToFirst()) {
+                    // Utilisation de getColumnIndexOrThrow pour éviter l'erreur -1
+                    int columnIndex = cursor.getColumnIndexOrThrow(COLUMN_PRENOM_CHAUF);
+                    prenom = cursor.getString(columnIndex);
+                }
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();  // Log l'erreur en cas de problème
+            } finally {
+                cursor.close();
+            }
+        }
+        return prenom;
     }
 
 
