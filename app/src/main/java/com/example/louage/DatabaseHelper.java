@@ -11,7 +11,7 @@ import java.util.Date;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "louage.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
 
     // Table "chauffeurs"
@@ -222,7 +222,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-    // Méthode pour obtenir les détails d'un voyageuser
+    // Méthode pour obtenir les détails d'un voyage
     public Voyage getVoyageDetails(int voyageId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT v." + COLUMN_FROM + ", v." + COLUMN_TO + ", v." + COLUMN_NB_RESERVATION +
@@ -355,9 +355,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public String getCurrentTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
-        return sdf.format(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        return sdf.format(date);  // Format the date to a string
     }
+
+
 
 
     private int getCurrentNbReservations(int voyageId) {
@@ -390,5 +393,3 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 }
-
-

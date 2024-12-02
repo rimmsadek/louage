@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Charger et appliquer le thème précédemment choisi
+        // Charger le rôle sauvegardé (si nécessaire)
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String selectedRole = sharedPreferences.getString(KEY_ROLE, "");
 
@@ -30,46 +29,36 @@ public class MainActivity extends AppCompatActivity {
         userCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRoleSelected(view);
+                navigateToLogin("user");
             }
         });
 
         driverCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRoleSelected(view);
+                navigateToLogin("driver");
             }
         });
     }
 
-    public void onRoleSelected(View view) {
-        String role = "";
-
-        if (view.getId() == R.id.userCard) {
-            role = "user";
-        } else if (view.getId() == R.id.driverCard) {
-            role = "driver";
-        } else {
-            Toast.makeText(this, "Invalid selection", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    private void navigateToLogin(String role) {
         // Enregistrer le rôle choisi dans SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_ROLE, role);
         editor.apply();
 
-        if (role.equals("user")) {  // Corrected the comparison operator
-            // Lancer l'activité LoginActivity avec le rôle passé en paramètre
-            Intent intent = new Intent(MainActivity.this, login.class); // Corrected class name
-            intent.putExtra(KEY_ROLE, role);  // Passer le rôle à LoginActivity
-            startActivity(intent);
-        } else if (role.equals("driver")) {  // Corrected the syntax for else if
-            // Lancer l'activité LoginActivity avec le rôle passé en paramètre
-            Intent intent = new Intent(MainActivity.this, login_cauffeur.class); // Corrected class name
-            intent.putExtra(KEY_ROLE, role);  // Passer le rôle à LoginActivity
-            startActivity(intent);
+        // Lancer l'activité correspondante en fonction du rôle
+        Intent intent;
+        if ("user".equals(role)) {
+            intent = new Intent(MainActivity.this, login.class);  // Pour les utilisateurs
+        } else if ("driver".equals(role)) {
+            intent = new Intent(MainActivity.this, login_cauffeur.class);  // Pour les chauffeurs
+        } else {
+            Toast.makeText(this, "Invalid role selected", Toast.LENGTH_SHORT).show();
+            return;
         }
+        intent.putExtra(KEY_ROLE, role);  // Passer le rôle
+        startActivity(intent);
     }
 }

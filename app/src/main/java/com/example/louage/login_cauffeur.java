@@ -5,137 +5,98 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
-
-
 
 public class login_cauffeur extends AppCompatActivity {
 
-    public static final String KEY_ROLE = "role";
     private EditText editTextEmail, editTextPassword;
     private TextView signupText;
     private Button loginButton;
     private DatabaseHelper dbHelper;
-    private String selectedRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login_cauffeur);
 
         // Initialisation des vues
-        signupText = findViewById(R.id.signupText);
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
+        signupText = findViewById(R.id.signupText);
         loginButton = findViewById(R.id.loginButton);
+
         dbHelper = new DatabaseHelper(this);
 
-        // Récupérer le rôle passé dans l'Intent
-        selectedRole = getIntent().getStringExtra(KEY_ROLE);
+        // Gestion du clic sur le bouton de connexion
+        loginButton.setOnClickListener(v -> handleLogin());
 
-        // Gestion du clic pour login
-        loginButton.setOnClickListener(v -> {
-            String email = editTextEmail.getText().toString().trim();
-            String password = editTextPassword.getText().toString().trim();
-
-            // Validation des champs
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(login_cauffeur.this, "Enter email and password", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(login_cauffeur.this, "Invalid email format", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Vérification des informations de connexion
-            if (checkLogin(email, password, selectedRole)) {
-                Toast.makeText(login_cauffeur.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(login_cauffeur.this, interface1_chauffeur.class) ;
-                startActivity(intent);
-                finish();
-            } else {
-                Toast.makeText(login_cauffeur.this, "Invalid credentials", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Gestion du clic pour signup
-        signupText.setOnClickListener(v -> {
-            Intent intent = new Intent(login_cauffeur.this, register_driver.class) ;
-            startActivity(intent);
-        });
+        // Gestion du clic sur le texte pour l'inscription
+        signupText.setOnClickListener(v -> startActivity(new Intent(login_cauffeur.this, register_driver.class)));
     }
 
-    @SuppressLint("Range")
-    private boolean checkLogin(String email, String password, String role) {
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-        String hashedPassword = password;
-        try {
-            db = dbHelper.getReadableDatabase();
+    // Fonction de gestion du login
+    private void handleLogin() {
+        String email = editTextEmail.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+        Log.d("LOGIN_ID", "Utilisateur ID récupéré : " +email );
 
-            String table = DatabaseHelper.TABLE_CHAUFFEURS;
-            String emailColumn = DatabaseHelper.COLUMN_EMAIL_CHAUF;
-            String passwordColumn = DatabaseHelper.COLUMN_MOT_DE_PASSE_CHAUF;
+        // Validation des champs
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Veuillez entrer un email et un mot de passe", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Format de l'email invalide", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Vérification des informations de connexion
+        int userId = checkLogin(email, password);
+        if (userId != -1) {
+            Toast.makeText(this, "Connexion réussie", Toast.LENGTH_SHORT).show();
+            GlobalState.getInstance().setChauffeurId(userId);
+            Log.d("LOGIN_ID", "Chauffeur ID récupéré : " + userId);
+            startActivity(new Intent(login_cauffeur.this, interface1_chauffeur.class));
+            finish();  // Terminer l'activité actuelle
+        } else {
+            Toast.makeText(this, "Email ou mot de passe incorrect", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Fonction pour vérifier les informations de connexion et retourner l'ID chauffeur
+    @SuppressLint("Range")
+    private int checkLogin(String email, String password) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+        int userId = -1;  // Retourner -1 si la connexion échoue
+
+        try {
             cursor = db.query(
-                    table,
-                    null,
-                    emailColumn + "=? AND " + passwordColumn + "=?",
-                    new String[]{email, hashedPassword},
-                    null,
-                    null,
-                    null
+                    DatabaseHelper.TABLE_CHAUFFEURS,
+                    new String[]{DatabaseHelper.COLUMN_CHAUFFEUR_ID},
+                    DatabaseHelper.COLUMN_EMAIL_CHAUF + "=? AND " + DatabaseHelper.COLUMN_MOT_DE_PASSE_CHAUF + "=?",
+                    new String[]{email, password},
+                    null, null, null
             );
 
             if (cursor != null && cursor.moveToFirst()) {
-
-                // Récupérer l'index de la colonne ID du chauffeur
-                int chauffeurIdColumnIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_CHAUFFEUR_ID);
-                if (chauffeurIdColumnIndex != -1) {
-                    // Récupérer l'ID du chauffeur
-                    int chauffeurId = cursor.getInt(chauffeurIdColumnIndex);
-                    Log.d("LOGIN_ID", "Chauffeur ID récupéré : " + chauffeurId);
-
-                    // Stocker l'ID dans la classe GlobalState
-                    GlobalState.getInstance().setChauffeurId(chauffeurId);
-
-                    return true; // Login réussi
-                } else {
-                    Log.d("LOGIN_ERROR", "La colonne COLUMN_CHAUFFEUR_ID n'existe pas");
-                }
+                userId = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_CHAUFFEUR_ID));
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
-            Log.e("DB_ERROR", "Error while checking login", e); // Log d'erreur
-            return false;
+            Log.e("LOGIN_ERROR", "Erreur lors de la vérification du login chauffeur", e);
         } finally {
-            if (cursor != null) cursor.close();
-            if (db != null) db.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        return false;
+        return userId;
     }
-
-
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
