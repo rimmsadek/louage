@@ -31,7 +31,6 @@ public class GlobalState {
         Log.d("GlobalState", "Changement ID chauffeur : " + chauffeurId); // Log pour vérifier l'ID du chauffeur
         this.chauffeurId = chauffeurId;
     }
-
     // Getter et Setter pour l'ID de l'utilisateur
     public int getUtilisateurId() {
         Log.d("GlobalState", "ID de l'utilisateur : " + utilisateurId);  // Ajouter un log pour vérifier l'ID de l'utilisateur

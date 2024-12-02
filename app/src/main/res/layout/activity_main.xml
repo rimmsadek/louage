@@ -17,15 +17,6 @@
 
     <!-- GridLayout avec deux cartes -->
 
-    <TextView
-        android:id="@+id/titleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:text="Choose Your Role"
-        android:textColor="@color/new_black"
-        android:textSize="24sp"
-        android:textStyle="bold" />
 
     <GridLayout
         android:layout_width="match_parent"
