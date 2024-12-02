@@ -1,6 +1,7 @@
 package com.example.louage;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -89,6 +90,7 @@ public class interface1_utilisateur extends AppCompatActivity {
             } else if (from.equals(to)) {
                 showToast("Veuillez choisir des destinations différentes.");
             } else {
+
                 // Passer les destinations choisies à l'activité suivante
                 Intent intent = new Intent(interface1_utilisateur.this, ListeVoyagesActivity.class);
                 intent.putExtra("from", from);

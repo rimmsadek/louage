@@ -8,7 +8,7 @@
     tools:context=".ListeVoyagesActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarListeVoyages"
+        android:id="@+id/toolbarListeReservation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
@@ -16,22 +16,11 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:title="Voyages disponibles" />
 
-    <TextView
-        android:id="@+id/textViewListeHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sélectionnez un voyage"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="center" />
+
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewVoyages"
+        android:id="@+id/recyclerViewReservations"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        />
+        android:layout_height="match_parent" />
+
 </LinearLayout>

@@ -50,12 +50,26 @@
             android:layout_height="56dp"
             android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/submitButton1"
+        <NumberPicker
+            android:id="@+id/placesNumberPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Confirmer"
-            android:layout_gravity="center" />
+            android:layout_marginTop="16dp"
+            android:contentDescription="Sélectionner le nombre de places disponibles"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toSpinner" />
+
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Valider"
+            android:contentDescription="Valider les informations"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/placesNumberPicker" />
     </LinearLayout>
 
     <!-- Sidebar - Menu de Navigation -->

@@ -7,11 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
+
+
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "louage.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
 
     // Table "chauffeurs"
@@ -47,7 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_VOYAGE_ID_RES = "voyage_id";
     public static final String COLUMN_UTILISATEUR_ID = "utilisateur_id";
     public static final String COLUMN_HEURE_RESERVATION = "heure_reservation";
-
+    public static final String COLUMN_NB_PLACES_RES = "nb_place_reserve";
 
     // create the "chauffeurs" table
     private static final String CREATE_TABLE_CHAUFFEURS =
@@ -94,6 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_RESERVATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COLUMN_VOYAGE_ID_RES + " INTEGER NOT NULL, " +
                     COLUMN_UTILISATEUR_ID + " INTEGER NOT NULL, " +
+                    COLUMN_NB_PLACES_RES + " INTEGER NOT NULL, " +
                     COLUMN_HEURE_RESERVATION + " TEXT NOT NULL, " +
                     "FOREIGN KEY (" + COLUMN_VOYAGE_ID_RES + ") REFERENCES " + TABLE_VOYAGE + "(" + COLUMN_VOYAGE_ID + ") ON DELETE CASCADE, " +
                     "FOREIGN KEY (" + COLUMN_UTILISATEUR_ID + ") REFERENCES " + TABLE_UTILISATEUR + "(" + COLUMN_ID_UTILISATEUR + ") ON DELETE CASCADE" +
@@ -193,7 +198,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Insert voyage avec gestion manuelle de l'ID
-    public long insertVoyage(int chauffeurId, String from, String to, int nbReservation, int nbPlacesDispo) {
+    public long insertVoyage(int chauffeurId, String from, String to, int nbReservation, int nbPlacesDispo)  {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Récupération de l'ID maximum actuel pour l'incrémenter
@@ -226,6 +231,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Voyage getVoyageDetails(int voyageId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT v." + COLUMN_FROM + ", v." + COLUMN_TO + ", v." + COLUMN_NB_RESERVATION +
+                ", v." + COLUMN_NB_PLACES_DISPO + ", v." + COLUMN_CHAUFFEUR_ID +
                 ", c." + COLUMN_NOM_CHAUF + ", c." + COLUMN_PRENOM_CHAUF +
                 " FROM " + TABLE_VOYAGE + " v " +
                 "JOIN " + TABLE_CHAUFFEURS + " c ON v." + COLUMN_CHAUFFEUR_ID + " = c." + COLUMN_CHAUFFEUR_ID +
@@ -235,29 +241,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Voyage voyage = null;
 
         if (cursor.moveToFirst()) {
-            String from = cursor.getString(0);
-            String to = cursor.getString(1);
-            int nbReservation = cursor.getInt(2);
-            int ChauffeurId = cursor.getInt(5);
-            String chauffeurNom = cursor.getString(3);
-            String chauffeurPrenom = cursor.getString(4);
-            voyage = new Voyage(voyageId, from, to, nbReservation, 8 - nbReservation,ChauffeurId, chauffeurNom, chauffeurPrenom);
+            // Assurez-vous que les indices correspondent exactement à l'ordre des colonnes dans la requête
+            String from = cursor.getString(0);               // v.from
+            String to = cursor.getString(1);                 // v.to
+            int nbReservation = cursor.getInt(2);            // v.nb_reservation
+            int placesDisponibles = cursor.getInt(3);        // v.nb_places_dispo
+            int chauffeurId = cursor.getInt(4);              // v.chauffeur_id
+            String chauffeurNom = cursor.getString(5);       // c.nom_chauf
+            String chauffeurPrenom = cursor.getString(6);    // c.prenom_chauf
+
+            // Construire l'objet Voyage avec les 8 paramètres
+            voyage = new Voyage(voyageId, from, to, nbReservation, placesDisponibles, chauffeurId, chauffeurNom, chauffeurPrenom);
         }
 
         cursor.close();
         db.close();
         return voyage;
     }
+
+
     public Cursor getVoyagesByDestination(String from, String to) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " +
                 COLUMN_VOYAGE_ID + ", " +
                 COLUMN_CHAUFFEUR_ID + ", " +
-                COLUMN_NB_RESERVATION +
+                COLUMN_NB_PLACES_DISPO +
                 " FROM " + TABLE_VOYAGE +
                 " WHERE " + COLUMN_FROM + " = ?" +
                 " AND " + COLUMN_TO + " = ?" +
-                " AND " + COLUMN_NB_RESERVATION + " < 8";
+                " AND " + COLUMN_NB_PLACES_DISPO + " > 0";
         return db.rawQuery(query, new String[]{from, to});
     }
 
@@ -334,11 +346,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                     // 3. Ajouter la réservation dans la table "reservations"
                     ContentValues reservationValues = new ContentValues();
-                    reservationValues.put("voyage_id", voyageId);
-                    reservationValues.put("utilisateur_id", utilisateurId);
-                    reservationValues.put("heure_reservation", getCurrentTime());  // You can define a method to get the current time
+                    reservationValues.put(COLUMN_VOYAGE_ID_RES, voyageId);
+                    reservationValues.put(COLUMN_UTILISATEUR_ID, utilisateurId);
+                    reservationValues.put(COLUMN_NB_PLACES_RES,placesReservees );
+                    reservationValues.put(COLUMN_HEURE_RESERVATION, getCurrentTime());  // You can define a method to get the current time
 
-                    db.insert("reservations", null, reservationValues);
+                    db.insert(TABLE_RESERVATIONS, null, reservationValues);
 
                     success = true;
                     db.setTransactionSuccessful();  // Mark the transaction as successful
@@ -354,30 +367,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+
+
     public String getCurrentTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
-        return sdf.format(date);  // Format the date to a string
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
+        return sdf.format(new Date());
     }
 
 
 
 
-    private int getCurrentNbReservations(int voyageId) {
+
+    public int getCurrentNbReservations(int voyageId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COLUMN_NB_RESERVATION + " FROM " + TABLE_VOYAGE +
+        String query = "SELECT " + COLUMN_NB_PLACES_DISPO + " FROM " + TABLE_VOYAGE +
                 " WHERE " + COLUMN_VOYAGE_ID + " = ?";
         Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(voyageId)});
 
         if (cursor != null && cursor.moveToFirst()) {
-            int nbReservations = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_RESERVATION));
+            int nbPlaceDispo = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_PLACES_DISPO));
             cursor.close();
-            return nbReservations;
+            return nbPlaceDispo;
         }
         if (cursor != null) cursor.close();
         return 0;
     }
-    private boolean updateNbReservations(int voyageId, int newNbReservations) {
+    public boolean updateNbReservations(int voyageId, int newNbReservations) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -385,6 +400,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         int rowsUpdated = db.update(TABLE_VOYAGE, values, COLUMN_VOYAGE_ID + " = ?", new String[]{String.valueOf(voyageId)});
         return rowsUpdated > 0;
+    }
+
+    public Cursor getChauffeurById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_CHAUFFEURS, null, COLUMN_CHAUFFEUR_ID + "=?",
+                new String[]{String.valueOf(userId)}, null, null, null);
+    }
+
+    public List<Reservation> getReservationsByUserId(int utilisateurId) {
+        List<Reservation> reservations = new ArrayList<>();
+
+        // Ouverture de la base de données en lecture
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Requête SQL pour récupérer les réservations par utilisateur, triées par heure (la plus récente en premier)
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_RESERVATIONS + " WHERE " +
+                        COLUMN_UTILISATEUR_ID + " = ? ORDER BY " + COLUMN_HEURE_RESERVATION + " DESC",
+                new String[]{String.valueOf(utilisateurId)});
+
+        // Parcours du curseur pour remplir la liste des réservations
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RESERVATION_ID));
+                int voyageId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_VOYAGE_ID_RES));
+                int nbPlaces = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_PLACES_RES));
+                String heureReservation = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_HEURE_RESERVATION));
+
+                // Création d'une nouvelle réservation et ajout à la liste
+                Reservation reservation = new Reservation(id, voyageId, utilisateurId, nbPlaces, heureReservation);
+                reservations.add(reservation);
+            } while (cursor.moveToNext());
+        }
+
+        // Fermeture du curseur et de la base de données
+        cursor.close();
+        db.close();
+
+        return reservations;
+    }
+    public boolean modifyChauffeurById(int id, String firstName, String lastName, String phone, String email, String matricule) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_NOM_CHAUF, firstName);
+        values.put(COLUMN_PRENOM_CHAUF, lastName);
+        values.put(COLUMN_TELEPHONE_CHAUF, phone);
+        values.put(COLUMN_EMAIL_CHAUF, email);
+        values.put(COLUMN_MATRICULE_CHAUF, matricule);
+
+        // Mise à jour de la base de données, on spécifie l'ID du chauffeur pour identifier l'enregistrement
+        int rows = db.update(TABLE_CHAUFFEURS, values, COLUMN_CHAUFFEUR_ID + "=?", new String[]{String.valueOf(id)});
+
+        // Retourner true si au moins une ligne a été mise à jour
+        return rows > 0;
     }
 
 

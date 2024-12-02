@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.widget.NumberPicker;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+import android.util.Log;
+import android.content.Intent;
 
 public class DetailsVoyageActivity extends AppCompatActivity {
 
@@ -30,19 +33,37 @@ public class DetailsVoyageActivity extends AppCompatActivity {
         }
 
         Button reserver = findViewById(R.id.buttonReserve);
-        NumberPicker placesNumberPicker = findViewById(R.id.numberPickerPlaces);
+        EditText placesEditText = findViewById(R.id.editTextPlaces);
+        Button buttonMinus = findViewById(R.id.buttonMinus);
+        Button buttonPlus = findViewById(R.id.buttonPlus);
 
-        placesNumberPicker.setMinValue(1); // Minimum 1 place pour la réservation
-        placesNumberPicker.setMaxValue(8);
+        buttonMinus.setOnClickListener(v -> {
+            int currentValue = Integer.parseInt(placesEditText.getText().toString());
+            if (currentValue > 1) {
+                placesEditText.setText(String.valueOf(currentValue - 1));
+            }
+        });
 
-        reserver.setOnClickListener((View v) -> {
-            int selectedPlaces = placesNumberPicker.getValue();
+        buttonPlus.setOnClickListener(v -> {
+            int currentValue = Integer.parseInt(placesEditText.getText().toString());
+            if (currentValue < 8) {
+                placesEditText.setText(String.valueOf(currentValue + 1));
+            }
+        });
 
-            // Utilisation de l'ID de l'utilisateur courant pour la réservation
+        reserver.setOnClickListener(v -> {
+            int selectedPlaces = Integer.parseInt(placesEditText.getText().toString());
             boolean success = dbHelper.addReservation(voyageId, utilisateurId, selectedPlaces);
             if (success) {
                 Toast.makeText(this, "Réservation réussie!", Toast.LENGTH_SHORT).show();
-                finish(); // Retour à l'écran précédent.
+                // Créer un Intent pour démarrer ReservationActivity
+                Intent intent = new Intent(DetailsVoyageActivity.this, ReservationsActivity.class);
+
+                // Passer des informations à l'activité (par exemple l'ID du voyage)
+                intent.putExtra("voyageId", voyageId);  // Vous pouvez ajouter d'autres informations si nécessaire
+
+                // Démarrer l'activité
+                startActivity(intent);
             } else {
                 Toast.makeText(this, "Échec de la réservation.", Toast.LENGTH_SHORT).show();
             }
@@ -56,7 +77,7 @@ public class DetailsVoyageActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.textViewChauffeur)).setText("Chauffeur: " + voyage.getChauffeurNom() + " " + voyage.getChauffeurPrenom());
             ((TextView) findViewById(R.id.textViewFrom)).setText("De: " + voyage.getFrom());
             ((TextView) findViewById(R.id.textViewTo)).setText("À: " + voyage.getTo());
-            ((TextView) findViewById(R.id.textViewPlaces)).setText("Places disponibles: " + (8 - voyage.getNbReservation()));
+            ((TextView) findViewById(R.id.textViewPlaces)).setText("Places disponibles: " + voyage.getPlacesDisponibles());
         }
     }
 }
