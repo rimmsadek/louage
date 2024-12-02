@@ -827,15 +827,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor != null) cursor.close();
         return 0;
     }
-    public boolean updateNbReservations(int voyageId, int newNbReservations) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_NB_RESERVATION, newNbReservations);
-
-        int rowsUpdated = db.update(TABLE_VOYAGE, values, COLUMN_VOYAGE_ID + " = ?", new String[]{String.valueOf(voyageId)});
-        return rowsUpdated > 0;
-    }
 
     public Cursor getChauffeurById(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -849,10 +840,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Ouverture de la base de données en lecture
         SQLiteDatabase db = this.getReadableDatabase();
 
-        // Requête SQL pour récupérer les réservations par utilisateur, triées par heure (la plus récente en premier)
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_RESERVATIONS + " WHERE " +
-                        COLUMN_UTILISATEUR_ID + " = ? ORDER BY " + COLUMN_HEURE_RESERVATION + " DESC",
-                new String[]{String.valueOf(utilisateurId)});
+        // Requête SQL pour récupérer les réservations par utilisateur, triées par heure (la plus récente en premier),
+        // en incluant les informations "FROM" et "TO" de la table "voyage"
+        String query = "SELECT r.*, v." + COLUMN_FROM + ", v." + COLUMN_TO + " FROM " + TABLE_RESERVATIONS + " r " +
+                "JOIN " + TABLE_VOYAGE + " v ON r." + COLUMN_VOYAGE_ID_RES + " = v." + COLUMN_VOYAGE_ID + " " +
+                "WHERE r." + COLUMN_UTILISATEUR_ID + " = ? " +
+                "ORDER BY r." + COLUMN_HEURE_RESERVATION + " DESC";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(utilisateurId)});
 
         // Parcours du curseur pour remplir la liste des réservations
         if (cursor.moveToFirst()) {
@@ -861,9 +856,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int voyageId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_VOYAGE_ID_RES));
                 int nbPlaces = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_PLACES_RES));
                 String heureReservation = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_HEURE_RESERVATION));
+                String from = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FROM));
+                String to = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TO));
 
                 // Création d'une nouvelle réservation et ajout à la liste
-                Reservation reservation = new Reservation(id, voyageId, utilisateurId, nbPlaces, heureReservation);
+                Reservation reservation = new Reservation(id, voyageId, utilisateurId, nbPlaces, heureReservation, from, to);
                 reservations.add(reservation);
             } while (cursor.moveToNext());
         }
@@ -874,6 +871,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return reservations;
     }
+
     public boolean modifyChauffeurById(int id, String firstName, String lastName, String phone, String email, String matricule) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -890,6 +888,79 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Retourner true si au moins une ligne a été mise à jour
         return rows > 0;
     }
+
+    // Méthode pour annuler la réservation
+    public boolean cancelReservation(int reservationId, int voyageId, int nbPlacesToCancel) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Commencer une transaction pour s'assurer que les deux opérations se produisent atomiquement
+        db.beginTransaction();
+        try {
+            // Supprimer la réservation de la table reservations
+            int rowsDeleted = db.delete(TABLE_RESERVATIONS, COLUMN_RESERVATION_ID + " = ?", new String[]{String.valueOf(reservationId)});
+
+            if (rowsDeleted > 0) {
+                // Calculer le nouveau nombre de réservations et de places disponibles
+                // Récupérer le nombre actuel de réservations et de places disponibles
+                String query = "SELECT " + COLUMN_NB_RESERVATION + ", " + COLUMN_NB_PLACES_DISPO + " FROM " + TABLE_VOYAGE + " WHERE " + COLUMN_VOYAGE_ID + " = ?";
+                Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(voyageId)});
+                if (cursor != null && cursor.moveToFirst()) {
+                    int currentNbReservations = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_RESERVATION));
+                    int currentNbPlacesDispo = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NB_PLACES_DISPO));
+
+                    // Mettre à jour les valeurs
+                    int newNbReservations = currentNbReservations - 1; // Une réservation annulée
+                    int newNbPlacesDispo = currentNbPlacesDispo + nbPlacesToCancel;
+
+                    // Préparer les nouvelles valeurs pour la table voyage
+                    ContentValues values = new ContentValues();
+                    values.put(COLUMN_NB_RESERVATION, newNbReservations);
+                    values.put(COLUMN_NB_PLACES_DISPO, newNbPlacesDispo);
+
+                    // Mettre à jour la table voyage
+                    int rowsUpdated = db.update(TABLE_VOYAGE, values, COLUMN_VOYAGE_ID + " = ?", new String[]{String.valueOf(voyageId)});
+
+                    if (rowsUpdated > 0) {
+                        // Si les deux mises à jour ont réussi, valider la transaction
+                        db.setTransactionSuccessful();
+                        return true; // Annulation et mise à jour réussies
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Fin de la transaction, elle est validée uniquement si la méthode setTransactionSuccessful() a été appelée
+            db.endTransaction();
+        }
+        return false; // Si l'une des opérations échoue
+    }
+
+    // Dans DatabaseHelper.java
+
+    public String getChauffeurPhoneNumber(int voyageId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String phoneNumber = null;
+
+        // Requête SQL pour récupérer le numéro de téléphone du chauffeur à partir de la table 'voyage'
+        String query = "SELECT " + COLUMN_TELEPHONE_CHAUF + " FROM " + TABLE_CHAUFFEURS +
+                " WHERE " + COLUMN_CHAUFFEUR_ID + " = (SELECT " + COLUMN_CHAUFFEUR_ID +
+                " FROM " + TABLE_VOYAGE + " WHERE " + COLUMN_VOYAGE_ID + " = ?)";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(voyageId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            // Récupérer le numéro de téléphone du chauffeur
+            phoneNumber = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TELEPHONE_CHAUF));
+        }
+
+        // Fermer le curseur après utilisation
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return phoneNumber != null ? phoneNumber : "Numéro non disponible"; // Retourner un message si aucun numéro n'est trouvé
+    }
+
 
 
 

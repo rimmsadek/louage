@@ -7,15 +7,28 @@ public class Reservation {
     private int utilisateurId;
     private int nbPlaces;
     private String heureReservation;
+    private String from ;
+    private String to ;
 
-    // Constructeur
-    public Reservation(int id, int voyageId, int utilisateurId, int nbPlaces, String heureReservation) {
+    public Reservation(int id, int voyageId, int utilisateurId, int nbPlaces, String heureReservation, String from, String to) {
         this.id = id;
         this.voyageId = voyageId;
         this.utilisateurId = utilisateurId;
         this.nbPlaces = nbPlaces;
         this.heureReservation = heureReservation;
+        this.from = from;
+        this.to = to;
     }
+
+    // Getters et setters pour les nouveaux champs
+    public String getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
 
     // Getters et setters
     public int getId() {
