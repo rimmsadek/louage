@@ -8,7 +8,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
 
 public class profil_chauffeur extends AppCompatActivity {
 
@@ -22,6 +27,49 @@ public class profil_chauffeur extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_chauffeur);
+
+
+        //**********************************************
+
+        // Configurer la Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Configurer le DrawerLayout et NavigationView
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        NavigationView navigationView = findViewById(R.id.navigationView);
+
+        // Ajouter ActionBarDrawerToggle pour gérer l'ouverture/fermeture du drawer
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState(); // Synchroniser l'état du DrawerToggle
+
+        // Gérer les éléments du menu latéral
+        navigationView.setNavigationItemSelectedListener(item -> {
+
+
+            if (item.getItemId() == R.id.acceuil) {
+                Intent intent = new Intent(this, interface1_chauffeur.class);
+                startActivity(intent);
+            } else if (item.getItemId() == R.id.nav_Voyages) {
+                Intent intent = new Intent(this, interface_chauffeur_reservations.class);
+                startActivity(intent);
+            } else if (item.getItemId() == R.id.profile) {
+                Intent intent = new Intent(this, profil_chauffeur.class);
+                startActivity(intent);
+            } else if (item.getItemId() == R.id.nav_logout) {
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
+
+
+
+            drawerLayout.closeDrawers(); // Fermer le menu après sélection
+            return true;
+        });
+
+        //******************************************************************************
 
         // Initialisation des vues
         imageView = findViewById(R.id.profile_image);

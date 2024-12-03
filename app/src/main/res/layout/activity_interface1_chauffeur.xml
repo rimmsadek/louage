@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="16dp">
+        >
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -90,13 +90,13 @@
     </LinearLayout>
 
 
-    <!-- Menu de la sidebar -->
-<com.google.android.material.navigation.NavigationView
-android:id="@+id/navigationView"
-android:layout_width="wrap_content"
-android:layout_height="match_parent"
-android:layout_gravity="start"
-app:menu="@menu/user_drawer_menu"
-app:headerLayout="@layout/user_drawer_header" />
+            <!-- Menu de la sidebar -->
+        <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/user_drawer_menu"
+        app:headerLayout="@layout/user_drawer_header" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
