@@ -1,32 +1,34 @@
 package com.example.louage;
 
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.widget.Toolbar;
-import com.google.android.material.navigation.NavigationView;
+
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.Intent;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
+
+public class profile_utilisateur extends AppCompatActivity {
 
 
-public class interface1_utilisateur extends AppCompatActivity {
 
-    private static final String[] GOVERNORATS = {
-            "Tunis", "Ariana", "Ben Arous", "Manouba", "Bizerte", "Beja", "Jendouba", "Kef",
-            "Siliana", "Zaghouan", "Nabeul", "Sousse", "Monastir", "Mahdia", "Kairouan",
-            "Kasserine", "Sidi Bouzid", "Gabes", "Mednine", "Tataouine", "Gafsa", "Tozeur",
-            "Kebili", "Sfax"
-    };
+    private TextView tvName, tvPhone, tvEmail, tvMatricule;
+    private ImageView imageView, editProfileIcon;
+    private DatabaseHelper databaseHelper;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_interface1_utilisateur);
+        setContentView(R.layout.activity_profile_utilisateur);
 
         // Configurer la Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -80,45 +82,52 @@ public class interface1_utilisateur extends AppCompatActivity {
             return true;
         });
 
+        // Initialisation des vues
+        imageView = findViewById(R.id.profile_image);
+        tvName = findViewById(R.id.tv_name);
+        tvPhone = findViewById(R.id.tv_phone);
+        tvEmail = findViewById(R.id.tv_email);
+        editProfileIcon = findViewById(R.id.editProfileIcon);
 
+        databaseHelper = new DatabaseHelper(this);
 
-        // Trouver les Spinners et le bouton
-        Spinner fromSpinner = findViewById(R.id.fromSpinner);
-        Spinner toSpinner = findViewById(R.id.toSpinner);
-        Button submitButton = findViewById(R.id.submitButton1);
+        // Charger l'ID du utilisateur à partir de GlobalState
+        int utilisateurId = GlobalState.getInstance().getUtilisateurId();
 
-        // Créer un adaptateur pour les listes déroulantes
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, GOVERNORATS);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Charger le profil
+        loadDriverProfile(utilisateurId);
 
-        // Associer l'adaptateur aux Spinners
-        fromSpinner.setAdapter(adapter);
-        toSpinner.setAdapter(adapter);
-
-        // Gérer le clic sur le bouton "Valider"
-        submitButton.setOnClickListener(v -> {
-            String from = fromSpinner.getSelectedItem() != null ? fromSpinner.getSelectedItem().toString() : null;
-            String to = toSpinner.getSelectedItem() != null ? toSpinner.getSelectedItem().toString() : null;
-
-            if (from == null || to == null) {
-                showError("Erreur lors de la sélection des destinations !");
-            } else if (from.equals(to)) {
-                showToast("Veuillez choisir des destinations différentes.");
-            } else {
-
-                // Passer les destinations choisies à l'activité suivante
-                Intent intent = new Intent(interface1_utilisateur.this, ListeVoyagesActivity.class);
-                intent.putExtra("from", from);
-                intent.putExtra("to", to);
+        // Ajouter l'événement pour rediriger vers la page de modification
+        editProfileIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(profile_utilisateur.this, edit_profil_utilisateur.class);
+                intent.putExtra("utilisateurId", utilisateurId);
                 startActivity(intent);
             }
         });
     }
 
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
+    private void loadDriverProfile(int utilisateurId) {
+        Cursor cursor = databaseHelper.getUtulisateurById(utilisateurId);
 
+        if (cursor != null && cursor.moveToFirst()) {
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_NOM_UTILISATEUR)) + " " +
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRENOM_UTILISATEUR));
+            String phone = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_TELEPHONE_UTILISATEUR));
+            String email = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EMAIL_UTILISATEUR));
+
+
+            tvName.setText(name);
+            tvPhone.setText(phone);
+            tvEmail.setText(email);
+
+
+            cursor.close();
+        } else {
+            Toast.makeText(this, "Aucun profil trouvé", Toast.LENGTH_SHORT).show();
+        }
+    }
     private void showError(String errorMessage) {
         Toast.makeText(this, "Erreur : " + errorMessage, Toast.LENGTH_LONG).show();
     }

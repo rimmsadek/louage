@@ -9,9 +9,13 @@
         android:icon="@drawable/ic_person"
         android:title="Profil" />
     <item
-        android:id="@+id/nav_settings"
+        android:id="@+id/choixreservation"
         android:icon="@drawable/ic_settings"
-        android:title="Paramètres" />
+        android:title="Reserser" />
+    <item
+        android:id="@+id/mesreservation"
+        android:icon="@drawable/ic_settings"
+        android:title="Mes Reservation" />
     <item
         android:id="@+id/nav_logout"
         android:icon="@drawable/ic_logout"

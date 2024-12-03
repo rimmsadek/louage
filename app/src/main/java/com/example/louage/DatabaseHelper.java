@@ -833,6 +833,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_CHAUFFEURS, null, COLUMN_CHAUFFEUR_ID + "=?",
                 new String[]{String.valueOf(userId)}, null, null, null);
     }
+    public Cursor getUtulisateurById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_UTILISATEUR, null, COLUMN_UTILISATEUR_ID + "=?",
+                new String[]{String.valueOf(userId)}, null, null, null);
+    }
 
     public List<Reservation> getReservationsByUserId(int utilisateurId) {
         List<Reservation> reservations = new ArrayList<>();
@@ -884,6 +889,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Mise à jour de la base de données, on spécifie l'ID du chauffeur pour identifier l'enregistrement
         int rows = db.update(TABLE_CHAUFFEURS, values, COLUMN_CHAUFFEUR_ID + "=?", new String[]{String.valueOf(id)});
+
+        // Retourner true si au moins une ligne a été mise à jour
+        return rows > 0;
+    }
+
+    public boolean modifyUtilisateurById(int id, String firstName, String lastName, String phone, String email) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_NOM_UTILISATEUR, firstName);
+        values.put(COLUMN_PRENOM_UTILISATEUR, lastName);
+        values.put(COLUMN_TELEPHONE_UTILISATEUR, phone);
+        values.put(COLUMN_EMAIL_UTILISATEUR, email);
+
+
+        // Mise à jour de la base de données, on spécifie l'ID du chauffeur pour identifier l'enregistrement
+        int rows = db.update(TABLE_UTILISATEUR, values, COLUMN_ID_UTILISATEUR + "=?", new String[]{String.valueOf(id)});
 
         // Retourner true si au moins une ligne a été mise à jour
         return rows > 0;
