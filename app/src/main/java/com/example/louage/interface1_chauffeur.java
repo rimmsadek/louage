@@ -134,7 +134,7 @@ public class interface1_chauffeur extends AppCompatActivity {
                 Intent intent = new Intent(this, interface1_chauffeur.class);
                 startActivity(intent);
             } else if (item.getItemId() == R.id.nav_Voyages) {
-                Intent intent = new Intent(this, interface1_chauffeur.class);
+                Intent intent = new Intent(this, interface_chauffeur_reservations.class);
                 startActivity(intent);
             } else if (item.getItemId() == R.id.profile) {
                 Intent intent = new Intent(this, profil_chauffeur.class);
