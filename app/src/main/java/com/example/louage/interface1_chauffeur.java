@@ -129,21 +129,21 @@ public class interface1_chauffeur extends AppCompatActivity {
         // Gérer les éléments du menu latéral
         navigationView.setNavigationItemSelectedListener(item -> {
 
-            Intent intent = null;  // Déclarer l'intent avant les conditions
 
             if (item.getItemId() == R.id.acceuil) {
-                intent = new Intent(this, interface1_chauffeur.class);
+                Intent intent = new Intent(this, interface1_chauffeur.class);
+                startActivity(intent);
             } else if (item.getItemId() == R.id.nav_Voyages) {
-                intent = new Intent(this, interface1_chauffeur.class);
+                Intent intent = new Intent(this, interface1_chauffeur.class);
+                startActivity(intent);
             } else if (item.getItemId() == R.id.profile) {
-                intent = new Intent(this, profil_chauffeur.class);
+                Intent intent = new Intent(this, profil_chauffeur.class);
+                startActivity(intent);
             } else if (item.getItemId() == R.id.nav_logout) {
-                intent = new Intent(this, MainActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
             }
 
-            if (intent != null) {
-                startActivity(intent); // Démarre l'activité correspondante
-            }
 
 
             drawerLayout.closeDrawers(); // Fermer le menu après sélection

@@ -1,60 +1,81 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/white">
 
     <!-- ImageView pour le profil -->
     <ImageView
         android:id="@+id/profile_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
         android:background="@drawable/circle_background"
         android:src="@drawable/driver_img"
-         />
+        />
 
-
+    <!-- Icone Modifier avec couleur modifiée -->
     <ImageView
         android:id="@+id/editProfileIcon"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignEnd="@id/profile_image"
-        android:layout_marginTop="-16dp"
-        android:layout_marginEnd="-80dp"
+        android:layout_alignTop="@id/profile_image"
+        android:layout_marginTop="-20dp"
+        android:layout_marginEnd="-10dp"
         android:contentDescription="@string/edit_profile"
-        android:src="@drawable/baseline_edit_24" />
+        android:src="@drawable/baseline_edit_24"
+        app:tint="@color/purple_700" /> <!-- Changer la couleur ici -->
 
+    <!-- Nom du profil -->
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/profile_image"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
         android:text="Nom"
-        android:textSize="18sp" />
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black" />
 
+    <!-- Numéro de téléphone -->
     <TextView
         android:id="@+id/tv_phone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_name"
-        android:layout_marginTop="8dp"
-        android:text="Téléphone" />
+        android:layout_marginTop="25dp"
+        android:layout_centerHorizontal="true"
+        android:text="Téléphone"
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray" />
 
+    <!-- Email -->
     <TextView
         android:id="@+id/tv_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_phone"
-        android:layout_marginTop="8dp"
-        android:text="Email" />
+        android:layout_marginTop="25dp"
+        android:layout_centerHorizontal="true"
+        android:text="Email"
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray" />
 
+    <!-- Matricule -->
     <TextView
         android:id="@+id/tv_matricule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_email"
-        android:layout_marginTop="8dp"
-        android:text="Matricule" />
+        android:layout_marginTop="25dp"
+        android:layout_centerHorizontal="true"
+        android:text="Matricule"
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray" />
 
 </RelativeLayout>
