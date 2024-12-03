@@ -12,7 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        >
+        android:gravity="center"
+        android:padding="16dp">
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -22,19 +24,32 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:title="Trajet" />
 
+        <!-- Image en haut -->
+        <ImageView
+            android:id="@+id/topImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/driver_img"
+        android:layout_marginBottom="40dp"
+        android:contentDescription="Image de profil"
+        android:layout_gravity="center"/>
+
         <TextView
             android:id="@+id/fromLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="De :"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <Spinner
             android:id="@+id/fromSpinner"
             android:layout_width="match_parent"
             android:layout_height="59dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/white"
+            android:spinnerMode="dropdown"/>
 
         <TextView
             android:id="@+id/toLabel"
@@ -42,13 +57,16 @@
             android:layout_height="wrap_content"
             android:text="À :"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <Spinner
             android:id="@+id/toSpinner"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/white"
+            android:spinnerMode="dropdown"/>
 
         <NumberPicker
             android:id="@+id/placesNumberPicker"
@@ -56,28 +74,29 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:contentDescription="Sélectionner le nombre de places disponibles"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toSpinner" />
+            android:layout_centerHorizontal="true" />
 
         <Button
             android:id="@+id/submitButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_height="57dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/purple_700"
             android:text="Valider"
-            android:contentDescription="Valider les informations"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/placesNumberPicker" />
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
     </LinearLayout>
 
-    <!-- Sidebar - Menu de Navigation -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigationView"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:menu="@menu/driver_drawer_menu"
-        app:headerLayout="@layout/driver_drawer_header" />
+
+    <!-- Menu de la sidebar -->
+<com.google.android.material.navigation.NavigationView
+android:id="@+id/navigationView"
+android:layout_width="wrap_content"
+android:layout_height="match_parent"
+android:layout_gravity="start"
+app:menu="@menu/user_drawer_menu"
+app:headerLayout="@layout/user_drawer_header" />
+
 </androidx.drawerlayout.widget.DrawerLayout>
